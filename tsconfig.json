@@ -1,17 +1,21 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "baseUrl": ".",
+    "paths": {
+      "*": ["src/*"]
+    },
+    "target": "es2016",
     "module": "commonjs",
     "outDir": "dev",
-    "lib": ["es2015", "dom", "es2017"],
+    "lib": ["es2016"],
     "moduleResolution": "node",
     "emitDecoratorMetadata": false,
     "experimentalDecorators": false,
     "sourceMap": true,
-    "declaration": false,
+    "declaration": false
   },
   "include": [
-    "src/**/*.ts",
+    "src/**/*.ts"
   ],
   "exclude": [
     "node_modules"

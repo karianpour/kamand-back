@@ -4,7 +4,7 @@ readEnv();
 import * as Debug from 'debug';
 import { Server } from '../lib/index';
 
-import { testQuery } from './query';
+import { queries } from './query';
 
 let server: Server;
 let debug = Debug('kamand');
@@ -12,8 +12,7 @@ let debug = Debug('kamand');
 function main(){
   server = new Server();
   server.run();
-  debug(`registering ${JSON.stringify(testQuery, null, 2)}`)
-  server.registerQueryBuilder(testQuery);
+  server.registerQueryBuilder(queries);
 }
 
 debug(`starting...`);

@@ -1,5 +1,6 @@
 import {Pool, PoolConfig, PoolClient, QueryConfig} from 'pg';
 import * as Debug from 'debug';
+import { Unauthorized } from 'http-errors';
 
 let debug = Debug('kamand');
 
@@ -7,6 +8,8 @@ type QueryFunction = (queryParams: any) => QueryConfig;
 
 export interface QueryBuilder {
   query: string,
+  public?: boolean,
+  authorize?: (user:any) => boolean,
   createQueryConfig: QueryFunction,
 }
 
@@ -31,8 +34,10 @@ export class DataService {
     this.queryBuilders = new Map();
   }
 
-  registerQueryBuilder(queryBuilder: QueryBuilder): void{
-    this.queryBuilders.set(queryBuilder.query, queryBuilder);
+  registerQueryBuilder(queryBuilders: QueryBuilder[]): void{
+    queryBuilders.forEach( queryBuilder =>{
+      this.queryBuilders.set(queryBuilder.query, queryBuilder);
+    });
   }
 
   async connect(){
@@ -44,7 +49,7 @@ export class DataService {
     debug(`connected to pg ${this.config.host}`);
   }
 
-  async query(query: string, queryParams: any){
+  async query(query: string, queryParams: any, user?:any){
     let client: PoolClient;
     try {
 
@@ -54,6 +59,18 @@ export class DataService {
 
       if(!queryBuilder){
         throw new Error(`query ${query} not found!`);
+      }
+
+      if(!queryBuilder.public){
+        if(!user){
+          throw new Unauthorized(`no user defined`);
+        }
+        if(!queryBuilder.authorize){
+          throw new Unauthorized(`no authorize function defined!`);
+        }
+        if(!queryBuilder.authorize(user)){
+          throw new Unauthorized(`user has no access`);
+        }
       }
 
       client = await this.dataPool.connect();

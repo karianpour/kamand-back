@@ -1,7 +1,8 @@
 import { QueryBuilder } from "../lib/index";
 
-export const testQuery:QueryBuilder = {
-  query: 'testQuery',
+const publicQuery:QueryBuilder = {
+  query: 'publicQuery',
+  public: true,
   createQueryConfig: (queryParams)=>{
 
     const year = queryParams.year || '1397';
@@ -9,15 +10,32 @@ export const testQuery:QueryBuilder = {
 
     return {
       text: `
-        select substring(InvoiceDate, 5, 2) as month, IT.Name as type_name, count(*)::int as count
-        from Invoice I
-        Inner join InvoiceType IT On IT.InvoiceTypeID = I.InvoiceTypeID
-        where InvoiceDate Like $1 || '%' 
-        group by 1, 2
-        order by 1;
+        select *
+        from game;
       `,
-      values: [year],
+      values: [],
         //   rowMode: 'array',
     };
   }
 }
+
+const privateQuery:QueryBuilder = {
+  query: 'privateQuery',
+  authorize: (user) => {
+    return true;
+  },
+  createQueryConfig: (queryParams)=>{
+
+    const year = queryParams.year || '1397';
+
+    return {
+      text: `
+        select * from player;
+      `,
+      values: [],
+        //   rowMode: 'array',
+    };
+  }
+}
+
+export const queries = [privateQuery, publicQuery];

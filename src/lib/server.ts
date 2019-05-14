@@ -13,7 +13,7 @@ export class Server {
     this.httpServer.start();
   }
 
-  registerQueryBuilder(queryBuilder: QueryBuilder): void{
-    this.dataService.registerQueryBuilder(queryBuilder);
+  registerQueryBuilder(queryBuilders: QueryBuilder[]): void{
+    this.dataService.registerQueryBuilder(queryBuilders);
   }
 }
