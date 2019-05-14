@@ -1,19 +1,59 @@
 {
   "name": "kamand-back",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "description": "Kamand back end",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "module": "dist/index.js",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/karianpour/kamand-back"
   },
-  "author": "",
-  "license": "ISC",
+  "private": false,
+  "scripts": {
+    "build-publish": "rm -rf ./dist && tsc --build ./tsconfig.build.json",
+    "start": "node --inspect=5858 -r ts-node/register ./src/example/index.ts",
+    "start:watch": "nodemon",
+    "build": "tsc",
+    "build-dev": "rm -rf ./dev && tsc",
+    "start-old": "rm -rf ./dev && tsc --watch & nodemon dev/example/index.js"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      ".git",
+      "node_modules"
+    ],
+    "watch": [
+      "src"
+    ],
+    "exec": "npm start",
+    "ext": "ts"
+  },
+  "engines": {
+    "node": ">=8"
+  },
+  "author": "Kayvan Arianpour",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^12.0.1",
+    "@types/debug": "0.0.31",
+    "@types/dotenv": "^6.1.0",
+    "@types/pg": "^7.4.11",
+    "nodemon": "^1.18.9",
+    "typescript": "^3.2.2",
+    "ts-node": "^8.1.0"
+  },
   "dependencies": {
+    "debug": "^4.1.0",
     "dotenv": "^7.0.0",
-    "encodeurl": "^1.0.2",
     "fastify": "^2.3.0",
     "fastify-cors": "^2.1.2",
-    "pg": "^7.10.0",
-    "querystring": "^0.2.0"
+    "pg": "^7.10.0"
   }
 }
