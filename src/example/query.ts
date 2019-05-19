@@ -10,11 +10,12 @@ const publicQuery:QueryBuilder = {
 
     return {
       text: `
-        select *
-        from game;
+        select (generate_series % 12 + 1) as month, 'aaaa' as type_name, generate_series % 3 as count
+        from generate_series(1, 50)
+        order by 1, 2;
       `,
       values: [],
-        //   rowMode: 'array',
+      //   rowMode: 'array',
     };
   }
 }

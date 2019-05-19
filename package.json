@@ -1,6 +1,6 @@
 {
   "name": "kamand-back",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Kamand back end",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -15,10 +15,11 @@
   },
   "private": false,
   "scripts": {
-    "build-publish": "rm -rf ./dist && tsc --build ./tsconfig.build.json",
+    "build": "rm -rf ./dist && tsc --build ./tsconfig.build.json",
     "start": "TS_NODE_FILES=true node --inspect=5858 -r ts-node/register ./src/example/index.ts",
     "start:watch": "nodemon",
-    "build": "tsc",
+    "build-tsc": "tsc",
+    "start-ts": "ts-node ./src/example/index.ts",
     "build-dev": "rm -rf ./dev && tsc",
     "start-old": "rm -rf ./dev && tsc --watch & nodemon dev/example/index.js"
   },

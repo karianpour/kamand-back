@@ -5,14 +5,16 @@ import * as Debug from 'debug';
 import { Server } from '../lib/index';
 
 import { queries } from './query';
+import models from './model';
 
 let server: Server;
 let debug = Debug('kamand');
 
-function main(){
+async function main(){
   server = new Server();
-  server.run();
+  await server.run();
   server.registerQueryBuilder(queries);
+  server.registerModel(models);
 }
 
 debug(`starting...`);

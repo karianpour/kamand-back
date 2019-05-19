@@ -1,4 +1,2 @@
-import { Server } from './server';
-import { QueryBuilder } from './data-service';
-
-export { Server, QueryBuilder };
+export * from './server';
+export * from './services/interfaces';

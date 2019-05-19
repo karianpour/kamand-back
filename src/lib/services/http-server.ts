@@ -5,6 +5,7 @@ import * as fastifyJwt from 'fastify-jwt';
 import { DataService } from './data-service';
 import { InternalServerError } from 'http-errors';
 import * as Debug from 'debug';
+import { Model } from './interfaces';
 
 let debug = Debug('kamand');
 
@@ -92,6 +93,17 @@ export class HttpServer {
     this.fastifyServer.listen(8050, '0.0.0.0', (err, address)=>{
       if(err) throw err;
       debug(`listen on ${address}`);
+    });
+  }
+
+  registerModelRoutes(models: Model[]){//routes: fastify.RouteOptions<Server, IncomingMessage, ServerResponse, fastify.DefaultQuery, fastify.DefaultParams, fastify.DefaultHeaders, any>[]){
+    models.map(m => {
+      const address = m.address();
+      const routes = m.routes();
+      routes.forEach( route => {
+        route.url = address + route.url;
+        this.fastifyServer.route(route);
+      });
     });
   }
 }

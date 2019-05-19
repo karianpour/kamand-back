@@ -1,5 +1,6 @@
-import { HttpServer } from './http-server';
-import { DataService, QueryBuilder } from './data-service';
+import { HttpServer } from './services/http-server';
+import { DataService } from './services/data-service';
+import { Model, QueryBuilder } from './services/interfaces';
 
 export class Server {
   private dataService: DataService;
@@ -13,7 +14,21 @@ export class Server {
     this.httpServer.start();
   }
 
+  getDataService(): DataService{
+    return this.dataService;
+  }
+
+  getHttpServer(): HttpServer{
+    return this.httpServer;
+  }
+
   registerQueryBuilder(queryBuilders: QueryBuilder[]): void{
     this.dataService.registerQueryBuilder(queryBuilders);
+  }
+
+  registerModel(models: Model[]): void{
+    this.httpServer.registerModelRoutes(models);
+    this.dataService.registerModelActions(models);
+    models.forEach( model => model.setServer(this));
   }
 }
