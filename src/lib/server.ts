@@ -6,11 +6,14 @@ export class Server {
   private dataService: DataService;
   private httpServer: HttpServer;
 
-  async run(){
+  async run(
+    host: string = '0.0.0.0',
+    port: number = 8050,
+  ){
     this.dataService = new DataService();
     await this.dataService.connect();
 
-    this.httpServer = new HttpServer(this.dataService);
+    this.httpServer = new HttpServer(this.dataService, host, port);
     this.httpServer.start();
   }
 

@@ -6,6 +6,7 @@ import { DataService } from './data-service';
 import { InternalServerError } from 'http-errors';
 import * as Debug from 'debug';
 import { Model } from './interfaces';
+import { SignOptions } from 'jsonwebtoken';
 
 let debug = Debug('kamand');
 
@@ -14,7 +15,9 @@ export class HttpServer {
   private fastifyServer:fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>;
 
   constructor(
-    private dataService: DataService
+    private dataService: DataService,
+    private host: string = '0.0.0.0',
+    private port: number = 8050,
   ){
   }
 
@@ -90,10 +93,14 @@ export class HttpServer {
       reply.send({ token })
     })
     
-    this.fastifyServer.listen(8050, '0.0.0.0', (err, address)=>{
+    this.fastifyServer.listen(this.port, this.host, (err, address)=>{
       if(err) throw err;
       debug(`listen on ${address}`);
     });
+  }
+
+  sign(payload: fastify.JWTTypes.SignPayloadType, options?: SignOptions): string{
+    return this.fastifyServer.jwt.sign(payload, options);
   }
 
   registerModelRoutes(models: Model[]){//routes: fastify.RouteOptions<Server, IncomingMessage, ServerResponse, fastify.DefaultQuery, fastify.DefaultParams, fastify.DefaultHeaders, any>[]){
