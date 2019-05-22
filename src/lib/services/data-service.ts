@@ -1,6 +1,6 @@
 import {Pool, PoolConfig, PoolClient} from 'pg';
 import * as Debug from 'debug';
-import { Unauthorized } from 'http-errors';
+import { Unauthorized, NotFound } from 'http-errors';
 import { QueryBuilder, ModelAction, Model } from './interfaces';
 
 let debug = Debug('kamand');
@@ -102,25 +102,20 @@ export class DataService {
       const action = this.actions.get(address);
 
       if(!action){
-        throw new Error(`action ${address} not found!`);
+        throw new NotFound(`action ${address} not found!`);
       }
 
       if(!action.public){
         if(!user){
-          throw new Unauthorized(`no user defined`);
-        }
-        if(!action.authorize){
-          throw new Unauthorized(`no authorize function defined!`);
-        }
-        if(!action.authorize(user)){
-          throw new Unauthorized(`user has no access`);
+          // if you encounter this error, the route that is calling this action is defined as public
+          throw new Unauthorized(`no user defined but the action is private`);
         }
       }
 
       client = await this.dataPool.connect();
 
       //FIXME it should be done in a transaction
-      const result = await action.act(client, actionParams);
+      const result = await action.act(client, actionParams, user);
 
       client.release();
 

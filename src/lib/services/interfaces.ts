@@ -12,13 +12,12 @@ export interface QueryBuilder {
   createQueryConfig: QueryFunction,
 }
 
-type RouteFunction = () => fastify.RouteOptions<Server, IncomingMessage, ServerResponse, fastify.DefaultQuery, fastify.DefaultParams, fastify.DefaultHeaders, any>[];
+type RouteFunction = () => (fastify.RouteOptions<Server, IncomingMessage, ServerResponse, fastify.DefaultQuery, fastify.DefaultParams, fastify.DefaultHeaders, any> & {public: boolean})[];
 
 export interface ModelAction {
   address: () => string;
-  public?: boolean,
-  authorize?: (user:any) => boolean,
-  act: (client: PoolClient, actionParam: any) => Promise<any>,
+  public: boolean,
+  act: (client: PoolClient, actionParam: any, user?: any) => Promise<any>,
 }
 
 type ModelActionFunction = () => ModelAction[];

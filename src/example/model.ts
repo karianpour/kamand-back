@@ -12,6 +12,7 @@ class Game implements Model {
   routes() {
     return [{
       method: 'GET' as HTTPMethod,
+      public: false,
       url: '/:id',
       schema: {
         // querystring: {
@@ -39,7 +40,7 @@ class Game implements Model {
     return [
       {
         address: () => '/findById',
-        public: true,
+        public: false,
         act: async (client: PoolClient, actionParam: any) => {
           const result = await client.query({
             text: `

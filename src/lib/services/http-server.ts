@@ -110,6 +110,9 @@ export class HttpServer {
       const routes = m.routes();
       routes.forEach( route => {
         route.url = address + route.url;
+        if(!route.public){
+          route.preValidation = this.fastifyServer.authenticate;
+        }
         this.fastifyServer.route(route);
       });
     });
