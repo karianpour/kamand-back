@@ -52,6 +52,7 @@
     "ts-node": "^8.1.0"
   },
   "dependencies": {
+    "change-case": "^3.1.0",
     "debug": "^4.1.0",
     "dotenv": "^7.0.0",
     "fastify": "^2.3.0",

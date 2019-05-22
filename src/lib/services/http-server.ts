@@ -23,6 +23,7 @@ export class HttpServer {
 
   start(){
     this.fastifyServer = fastify({
+      bodyLimit: 100 * 1024,
       logger: true,
     });
 

@@ -1,3 +1,5 @@
+import { ExpectationFailed } from 'http-errors';
+
 
 const emailFormat = /\S+@\S+\.\S+/;
 const mobileFormat = /^(09)\d{9}$/;
@@ -34,4 +36,13 @@ export function isValidNationalID(value: string) {
 
   if (reminder >= 2) return 11 - reminder === controlDigit;
   else return reminder === controlDigit;
+}
+
+export function throwError(property: string, errorCode: string, errorText: string, fieldTranslation: string) {
+  const msg = {
+    codes: { [property]: [{code: errorCode, params: {field: fieldTranslation}}] },
+    [property]: [errorText],
+  };
+  const error = new ExpectationFailed(JSON.stringify(msg));
+  throw error;
 }
