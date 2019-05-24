@@ -69,7 +69,7 @@ export class DataService {
 
       client = await this.dataPool.connect();
 
-      const result = await client.query(queryBuilder.createQueryConfig(queryParams));
+      const result = await client.query(queryBuilder.createQueryConfig(queryParams, user));
       client.release();
 
       return result.rows;

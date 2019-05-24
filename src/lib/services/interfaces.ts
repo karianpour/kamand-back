@@ -3,7 +3,7 @@ import { Server, IncomingMessage, ServerResponse } from 'http';
 import { PoolClient, QueryConfig } from 'pg';
 import { Server as KamandServer } from '../server';
 
-type QueryFunction = (queryParams: any) => QueryConfig;
+type QueryFunction = (queryParams: any, user?: any) => QueryConfig;
 
 export interface QueryBuilder {
   query: string,
