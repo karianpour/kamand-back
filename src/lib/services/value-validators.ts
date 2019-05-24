@@ -1,4 +1,5 @@
 import { ExpectationFailed } from 'http-errors';
+import { type } from 'os';
 
 
 const emailFormat = /\S+@\S+\.\S+/;
@@ -20,6 +21,27 @@ export function isValidPersianAlphabetFormat(text: string) {
 
 export function allCharsAreDigits(string: string) {
   return allDigitFormat.test(string);
+}
+
+export function isValidTimestamp(value: any) {
+  if(value instanceof Date){
+    return true;
+  }
+  if(typeof value === 'string'){
+    const d = Date.parse(value);
+    return !isNaN(d);
+  }
+  return false;
+}
+
+export function isValidNumber(value: any) {
+  if(typeof value === 'number'){
+    return true;
+  }
+  if(typeof value === 'string'){
+    return allDigitFormat.test(value);
+  }
+  return false;
 }
 
 export function isValidNationalID(value: string) {
