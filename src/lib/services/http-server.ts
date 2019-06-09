@@ -1,5 +1,7 @@
 import * as fastify from 'fastify';
 import { Server, IncomingMessage, ServerResponse } from 'http';
+import 'fastify-cors';
+import 'fastify-jwt';
 import * as fastifyCors from 'fastify-cors';
 import * as fastifyJwt from 'fastify-jwt';
 import { DataService } from './data-service';
@@ -88,12 +90,6 @@ export class HttpServer {
       }
     );
 
-    this.fastifyServer.post('/auth/login', (req, reply) => {
-      const payload = { aid:'12345' }
-      const token = this.fastifyServer.jwt.sign({ payload })
-      reply.send({ token })
-    })
-    
     this.fastifyServer.listen(this.port, this.host, (err, address)=>{
       if(err) throw err;
       debug(`listen on ${address}`);
