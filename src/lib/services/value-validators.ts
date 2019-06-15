@@ -39,7 +39,9 @@ export function isValidNumber(value: any) {
     return true;
   }
   if(typeof value === 'string'){
-    return allDigitFormat.test(value);
+    const d = Number(value);
+    return !isNaN(d);
+    // return allDigitFormat.test(value);
   }
   return false;
 }
