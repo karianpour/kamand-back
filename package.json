@@ -1,6 +1,6 @@
 {
   "name": "kamand-back",
-  "version": "1.0.23",
+  "version": "1.0.24",
   "description": "Kamand back end",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -52,6 +52,7 @@
     "ts-node": "^8.1.0"
   },
   "dependencies": {
+    "@types/pg-format": "^1.0.0",
     "change-case": "^3.1.0",
     "debug": "^4.1.0",
     "dotenv": "^7.0.0",
@@ -60,6 +61,7 @@
     "fastify-jwt": "^0.10.0",
     "fastify-plugin": "^1.5.0",
     "pg": "^7.10.0",
+    "pg-format": "^1.0.4",
     "sql-bricks-postgres": "^0.5.0"
   }
 }
