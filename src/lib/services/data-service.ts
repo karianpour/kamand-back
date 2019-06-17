@@ -113,15 +113,19 @@ export class DataService {
       }
 
       client = await this.dataPool.connect();
+      await client.query('begin');
 
-      //FIXME it should be done in a transaction
       const result = await action.act(client, actionParams, user);
 
+      await client.query('commit');
       client.release();
 
       return result;
     } catch (error) {
       if(client){
+        try {
+          await client.query('rollback');
+        } catch (error) {}
         try {
           client.release(error);
         } catch (error) {}
