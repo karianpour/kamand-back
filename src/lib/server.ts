@@ -1,6 +1,8 @@
 import { HttpServer } from './services/http-server';
 import { DataService } from './services/data-service';
 import { Model, QueryBuilder } from './services/interfaces';
+import * as Debug from 'debug';
+let debug = Debug('kamand');
 
 export class Server {
   private dataService: DataService;
@@ -10,6 +12,7 @@ export class Server {
     host: string = '0.0.0.0',
     port: number = 8050,
   ){
+    debug('starting services');
     this.dataService = new DataService();
     await this.dataService.connect();
 
@@ -34,4 +37,11 @@ export class Server {
     this.dataService.registerModelActions(models);
     models.forEach( model => model.setServer(this));
   }
+
+  async stop() {
+    debug('stopping services');
+    await this.httpServer.stop();
+    await this.dataService.stop();
+  }
+
 }

@@ -96,6 +96,11 @@ export class HttpServer {
     });
   }
 
+  async stop() {
+    debug('stopping http server');
+    await this.fastifyServer.close();
+  }
+
   sign(payload: fastify.JWTTypes.SignPayloadType, options?: SignOptions): string{
     return this.fastifyServer.jwt.sign(payload, options);
   }

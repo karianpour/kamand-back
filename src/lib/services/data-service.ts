@@ -69,6 +69,11 @@ export class DataService {
 
       client = await this.dataPool.connect();
 
+      // console.time('app_name')
+      await client.query(`set application_name = 'query_${query}';`);
+      // it has 4 ms over head
+      // console.timeEnd('app_name')
+
       const result = await client.query(queryBuilder.createQueryConfig(queryParams, user));
       client.release();
 
@@ -81,6 +86,11 @@ export class DataService {
       }
       throw error;
     }
+  }
+
+  async stop(){
+    debug('stopping data service');
+    await this.dataPool.end();
   }
 
   registerModelActions(models: Model[]): void{
@@ -113,6 +123,10 @@ export class DataService {
       }
 
       client = await this.dataPool.connect();
+
+      // it has 4ms overhead
+      await client.query(`set application_name = 'action_${address}';`);
+
       await client.query('begin');
 
       const result = await action.act(client, actionParams, user);

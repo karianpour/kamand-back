@@ -17,5 +17,5 @@ export function hasRole(user: any, checkingRoles: string | string[]): boolean {
     }
   }
 
-  user.roles && user.roles.findIndex( r => 'admin')
+  return false;
 }
