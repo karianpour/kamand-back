@@ -5,8 +5,9 @@ const publicQuery:QueryBuilder = {
   public: true,
   createQueryConfig: (queryParams)=>{
 
-    const year = queryParams.year || '1397';
+    const { type_name } = queryParams;
 
+    console.log(`type_name is ${type_name}`);
 
     return {
       text: `
