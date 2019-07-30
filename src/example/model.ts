@@ -2,12 +2,12 @@ import { Model, Server } from "../lib/index";
 import { PoolClient } from "pg";
 import { HTTPMethod } from "fastify";
 
-class Game implements Model {
+class Acc implements Model {
   private server: Server;
 
   setServer(s: Server) { this.server = s; }
 
-  address() { return '/games'; }
+  address() { return '/acc'; }
 
   routes() {
     return [{
@@ -45,7 +45,7 @@ class Game implements Model {
           const result = await client.query({
             text: `
               select *
-              from game
+              from acc
               where id = $1;
             `,
             values: [actionParam.id],
@@ -60,7 +60,7 @@ class Game implements Model {
 }
 
 const models: Model[] = [ 
-  new Game(),
+  new Acc(),
 ];
 
 export default models;
