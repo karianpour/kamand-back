@@ -120,7 +120,7 @@ class Acc implements Model {
   }
 
   handleCreate = async (request, reply) => {
-    const actionParam = request.body.player;
+    const actionParam = request.body;
 
     const result = await this.server.getDataService().act(this.address()+'/create', actionParam, request.user);
     reply.send(result);

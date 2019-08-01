@@ -130,7 +130,7 @@ class Voucher implements Model {
   }
 
   handleCreate = async (request, reply) => {
-    const actionParam = request.body.player;
+    const actionParam = request.body;
 
     const result = await this.server.getDataService().act(this.address()+'/create', actionParam, request.user);
     reply.send(result);
@@ -153,19 +153,19 @@ class Voucher implements Model {
 
     if (!id) {
       const f = 'id';
-      throwError(f, 'required', `${f} is missing!`, `example.${f}`);
+      throwError(f, 'required', `${f} is missing!`, `data.${f}`);
     }
     if (!voucherNo) {
       const f = 'voucherNo';
-      throwError(f, 'required', `${f} is missing!`, `example.${f}`);
+      throwError(f, 'required', `${f} is missing!`, `data.${f}`);
     }
     //... the rest should be checked as well
     if (!createdAt) {
       const f = 'createdAt';
-      throwError(f, 'required', `${f} is missing!`, `example.${f}`);
+      throwError(f, 'required', `${f} is missing!`, `data.${f}`);
     }
 
-    await uniqueField(client, 'voucher', 'id', 'voucherNo', id, voucherNo, 'example.voucherNo');
+    await uniqueField(client, 'voucher', 'id', 'voucherNo', id, voucherNo, 'data.voucherNo');
 
     let upsert = sql.insert('voucher', {
       id,
