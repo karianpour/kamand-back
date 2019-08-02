@@ -155,6 +155,10 @@ class Voucher implements Model {
       const f = 'id';
       throwError(f, 'required', `${f} is missing!`, `data.${f}`);
     }
+    // {  // if the error is in an array, the format is as follow :
+    //   const f = 'articleNo';
+    //   throwError(`articles.0.${f}`, 'required', `${f} is missing!`, `data.${f}`);
+    // }
     if (!voucherNo) {
       const f = 'voucherNo';
       throwError(f, 'required', `${f} is missing!`, `data.${f}`);
