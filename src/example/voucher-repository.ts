@@ -52,11 +52,14 @@ const voucherQuery:QueryBuilder = {
     let select = sql.select(...(voucherFields.map(f => 'v.'+f)));
     select = select.from('voucher v');
 
-    if(queryParams.code){
-      select = select.where(sql.ilike('v.code', `%${queryParams.code}%`));
+    if(queryParams.voucherNo){
+      select = select.where(sql.eq('v.voucher_no', queryParams.voucherNo));
     }
-    if(queryParams.name){
-      select = select.where(sql.ilike('v.name', `%${queryParams.name}%`));
+    if(queryParams.voucherDate){
+      select = select.where(sql.eq('v.voucher_date', queryParams.voucherDate));
+    }
+    if(queryParams.refer){
+      select = select.where(sql.ilike('v.refer', `%${queryParams.refer}%`));
     }
     select = select.limit('500');
     select = select.orderBy('v.voucher_no');

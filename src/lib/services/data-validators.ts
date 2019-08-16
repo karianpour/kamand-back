@@ -16,3 +16,7 @@ export async function uniqueField(client: PoolClient, tableName: string, idField
     throw error;
   }
 }
+
+export function isValidDate(d: any) {
+  return d instanceof Date && !isNaN(d.getTime());
+}

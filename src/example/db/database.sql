@@ -51,3 +51,37 @@ create table article (
   remark text not null,
   created_at timestamptz
 );
+
+
+
+insert into voucher (
+  id, voucher_no, voucher_date, voucher_type,
+  acc_id, registered, amount, refer, remark, created_at
+)
+values (
+  '937c662e-0f07-4a91-a407-bae9e98639f6', 1, '2019-08-15', 'normal',
+  '937c662e-0f07-4a91-a407-bae9e98639f6', true, 120, 'ref', 'rem', now()
+),(
+  '937c662e-0f07-4a91-a407-bae9e98639f7', 2, '2019-08-15', 'normal',
+  '937c662e-0f07-4a91-a407-bae9e98639f6', true, 120, 'ref', 'rem', now()
+);
+
+
+insert into article (
+  id, voucher_id,
+  article_no, article_date,
+  acc_id, voucher_type, registered, amount,
+  refer, remark, created_at
+)
+values (
+  '937c662e-0f07-4a91-a407-bae9e98639f6', '937c662e-0f07-4a91-a407-bae9e98639f6',
+  1, '2019-08-14',
+  '937c662e-0f07-4a91-a407-bae9e98639f6', 'normal', true, 1000,
+  'ref', 'rem', now()
+),(
+  '937c662e-0f07-4a91-a407-bae9e98639f7', '937c662e-0f07-4a91-a407-bae9e98639f6',
+  2, '2019-08-14',
+  '937c662e-0f07-4a91-a407-bae9e98639f8', 'normal', true, -1000,
+  'ref', 'rem', now()
+);
+
