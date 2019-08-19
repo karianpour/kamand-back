@@ -26,16 +26,16 @@ const voucherFields: string[] = [
 
 const articleFields: string[] = [
   'id',
-  'voucher_id as "voucher_id"',
-  'article_no as "article_no"',
-  'article_date as "article_date"',
-  'acc_id as "acc_id"',
+  'voucher_id as "voucherId"',
+  'article_no as "articleNo"',
+  'article_date as "articleDate"',
+  'acc_id as "accId"',
   'voucher_type as "voucherType"',
   'registered',
   'amount',
   'refer',
   'remark',
-  'created_at as "created_at"',
+  'created_at as "createdAt"',
 ];
 
 const voucherQuery:QueryBuilder = {
@@ -121,15 +121,31 @@ class Voucher implements Model {
       throw new Unauthorized(`a user can do this action!`);
     }
 
-    let select = sql.select(...voucherFields);
-    select = select.from('voucher v');
-    select = select.where(sql('id = $1', id));
+    let voucher;
 
-    const query = select.toParams();
+    {
+      let select = sql.select(...voucherFields);
+      select = select.from('voucher v');
+      select = select.where(sql('id = $1', id));
+  
+      const query = select.toParams();
+  
+      const result = await client.query(query);
+      voucher = result.rows.length === 0 ? null : result.rows[0];
+    }
 
-    const result = await client.query(query);
+    if(voucher){
+      let select = sql.select(...articleFields);
+      select = select.from('article a');
+      select = select.where(sql('voucher_id = $1', id));
+  
+      const query = select.toParams();
+  
+      const result = await client.query(query);
+      voucher.articles = result.rows.length === 0 ? [] : result.rows;
+    }
 
-    return result.rows.length > 0 ? result.rows[0] : null;
+    return voucher;
   }
 
   handleCreate = async (request, reply) => {
