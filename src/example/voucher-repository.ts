@@ -188,7 +188,7 @@ class Voucher implements Model {
       throwError(f, 'required', `${f} is missing!`, `data.${f}`);
     }
 
-    await uniqueField(client, 'voucher', 'id', 'voucherNo', id, voucherNo, 'data.voucherNo');
+    await uniqueField(client, 'voucher', 'id', 'voucher_no', id, voucherNo, 'data.voucherNo');
 
     let upsert = sql.insert('voucher', {
       id,
@@ -224,7 +224,7 @@ class Voucher implements Model {
       const contentQuery = format(`
         insert into article (
           id, voucher_id, article_no, article_date, acc_id, voucher_type, registered, amount, refer, remark, created_at
-        ) values %L %s`, dataArray, `returning (${articleFields.join(', ')})`
+        ) values %L %s`, dataArray, `returning ${articleFields.join(', ')}`
       );
 
       await client.query(contentQuery);
