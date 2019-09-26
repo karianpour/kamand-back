@@ -19,3 +19,4 @@ npm run build
 npm publish
 ```
 
+we can use postgres-migrations for database migration

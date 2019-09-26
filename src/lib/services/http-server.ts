@@ -18,19 +18,21 @@ export class HttpServer {
 
   constructor(
     private dataService: DataService,
-    private host: string = '0.0.0.0',
-    private port: number = 8050,
+    private host: string,
+    private port: number,
+    private logger: boolean,
+    private origin: boolean,
   ){
   }
 
   start(){
     this.fastifyServer = fastify({
       bodyLimit: 100 * 1024,
-      logger: true,
+      logger: this.logger,
     });
 
     this.fastifyServer.register(fastifyCors, { 
-      origin: true,
+      origin: this.origin,
     });
 
     this.fastifyServer.register(fastifyJwt, {

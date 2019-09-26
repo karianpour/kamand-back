@@ -11,12 +11,14 @@ export class Server {
   async run(
     host: string = '0.0.0.0',
     port: number = 8050,
+    logger: boolean = true,
+    origin: boolean = true,
   ){
     debug('starting services');
     this.dataService = new DataService();
     await this.dataService.connect();
 
-    this.httpServer = new HttpServer(this.dataService, host, port);
+    this.httpServer = new HttpServer(this.dataService, host, port, logger, origin);
     this.httpServer.start();
   }
 
