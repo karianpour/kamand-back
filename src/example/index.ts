@@ -15,7 +15,7 @@ let debug = Debug('kamand-example');
 
 async function main(){
   server = new Server();
-  await server.run();
+  await server.run(process.env.SERVER_HOST || '0.0.0.0', parseInt(process.env.SERVER_PORT || '8050'), false, true);
   // server.registerQueryBuilder(queries);
   // server.registerModel(models);
 
