@@ -3,7 +3,7 @@ import { camelCase } from 'change-case';
 import { BadRequest, NotFound, Conflict } from 'http-errors';
 import * as sql from 'sql-bricks-postgres';
 
-export async function uniqueField(client: PoolClient, tableName: string, idField: string | string[], uniqueField: string, idValue: any | any[], uniqueFieldValue: any, fieldTranslation: string){
+export async function uniqueField(client: PoolClient, tableName: string, idField: string | string[], uniqueField: string | string[], idValue: any | any[], uniqueFieldValue: any | any[], fieldTranslation: string){
 
   let select = sql.select(idField);
   select = select.from(tableName);
