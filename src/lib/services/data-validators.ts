@@ -43,12 +43,23 @@ export async function uniqueField(client: PoolClient, tableName: string, idField
   //   values: [idValue, uniqueFieldValue]
   // });
   if (rr && rr.rows.length > 0) {
-    const field = camelCase(uniqueField);
-    const error = new Conflict(JSON.stringify({
-      codes: { [field]: [{code: 'duplicate', params: {field: fieldTranslation}}] },
-      [field]: [`${field} already defined!`],
-    }));
-    throw error;
+    if(Array.isArray(uniqueField)){
+      const fields = uniqueField.map(uf => camelCase(uf));
+      const payload = { codes: {}};
+      fields.forEach( field => {
+        payload.codes[field] = [{code: 'duplicate', params: {field: fieldTranslation}}];
+        payload[field] = [`${field} already defined!`];
+      })
+      const error = new Conflict(JSON.stringify(payload));
+      throw error;
+    }else{
+      const field = camelCase(uniqueField);
+      const error = new Conflict(JSON.stringify({
+        codes: { [field]: [{code: 'duplicate', params: {field: fieldTranslation}}] },
+        [field]: [`${field} already defined!`],
+      }));
+      throw error;
+    }
   }
 }
 
