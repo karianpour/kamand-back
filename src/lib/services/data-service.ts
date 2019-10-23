@@ -1,9 +1,15 @@
-import {Pool, PoolConfig, PoolClient} from 'pg';
+import {Pool, PoolConfig, PoolClient, types} from 'pg';
 import * as Debug from 'debug';
 import { Unauthorized, NotFound } from 'http-errors';
 import { QueryBuilder, ModelAction, Model } from './interfaces';
 
 let debug = Debug('kamand');
+
+const parseDate = function(val: string): string {
+  //K1: I had a problem, the default behaviour case the reading to go back/forward
+  return val+'T00:00:00.000Z';
+}
+types.setTypeParser(types.builtins.DATE, parseDate);
 
 export class DataService {
 
