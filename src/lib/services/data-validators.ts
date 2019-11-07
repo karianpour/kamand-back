@@ -2,8 +2,9 @@ import { PoolClient } from "pg";
 import { camelCase } from 'change-case';
 import { BadRequest, NotFound, Conflict } from 'http-errors';
 import * as sql from 'sql-bricks-postgres';
+import { createError } from "./value-validators";
 
-export async function uniqueField(client: PoolClient, tableName: string, idField: string | string[], uniqueField: string | string[], idValue: any | any[], uniqueFieldValue: any | any[], fieldTranslation: string){
+export async function uniqueField(client: PoolClient, tableName: string, idField: string | string[], uniqueField: string | string[], idValue: any | any[], uniqueFieldValue: any | any[], fieldTranslation: string, err?: any[]){
 
   let select = sql.select(idField);
   select = select.from(tableName);
@@ -54,11 +55,15 @@ export async function uniqueField(client: PoolClient, tableName: string, idField
       throw error;
     }else{
       const field = camelCase(uniqueField);
-      const error = new Conflict(JSON.stringify({
-        codes: { [field]: [{code: 'duplicate', params: {field: fieldTranslation}}] },
-        [field]: [`${field} already defined!`],
-      }));
-      throw error;
+      if(err){
+        err.push(createError(field, 'duplicate', `${field} already defined!`, {field: fieldTranslation}));
+      }else{
+        const error = new Conflict(JSON.stringify({
+          codes: { [field]: [{code: 'duplicate', params: {field: fieldTranslation}}] },
+          [field]: [`${field} already defined!`],
+        }));
+        throw error;
+      }
     }
   }
 }

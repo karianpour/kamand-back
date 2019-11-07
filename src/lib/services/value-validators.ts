@@ -63,10 +63,24 @@ export function isValidNationalID(value: string) {
 }
 
 export function throwError(property: string, errorCode: string, errorText: string, fieldTranslation: string) {
+  throwAdvancedError(property, errorCode, errorText, {field: fieldTranslation})
+}
+
+export function throwAdvancedError(property: string, errorCode: string, errorText: string, params: {[key: string]: string}) {
   const msg = {
-    codes: { [property]: [{code: errorCode, params: {field: fieldTranslation}}] },
+    codes: { [property]: [{code: errorCode, params}] },
     [property]: [errorText],
   };
   const error = new ExpectationFailed(JSON.stringify(msg));
   throw error;
+}
+
+export function createError(path: string, errorCode: string, errorText: string, params: {[key: string]: string}) {
+  const err = {
+    path,
+    message: errorText,
+    code: errorCode,
+    params,
+  };
+  return err;
 }
