@@ -4,7 +4,7 @@ import { HTTPMethod } from "fastify";
 import { uniqueField } from '../lib/services/data-validators';
 import { hasRole } from '../lib/services/auth-functions';
 import { BadRequest, Conflict, ExpectationFailed, Unauthorized } from 'http-errors';
-import { throwError, isValidNationalID, isValidMobileFormat, isValidPersianAlphabetFormat } from '../lib/services/value-validators';
+import { throwError, isValidNationalID, isValidMobileFormat, isValidPersianAlphabetFormat, createError } from '../lib/services/value-validators';
 import * as sql from 'sql-bricks-postgres';
 import * as format from 'pg-format';
 import * as Debug from 'debug';
@@ -169,7 +169,16 @@ class Voucher implements Model {
       createdAt,
       articles,
     } = actionParam;
+/*
+  better approach for error throwing
 
+    const err: any[] = [];
+    err.push(createError(``, 'lockedItem', `fiscal is locked!`, {field: 'pbl.fiscal'}));
+    err.push(createError(`registered`, 'lockedItem', `fiscal is locked!`, {field: 'pbl.fiscal'}));
+    if(err.length > 0){
+      throw new ExpectationFailed(JSON.stringify(err));
+    }
+*/
     if (!id) {
       const f = 'id';
       throwError(f, 'required', `${f} is missing!`, `data.${f}`);
