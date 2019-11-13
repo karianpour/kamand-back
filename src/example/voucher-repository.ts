@@ -69,6 +69,39 @@ const voucherQuery:QueryBuilder = {
   }
 }
 
+const report:QueryBuilder = {
+  query: 'report',
+  public: false,
+  authorize: (user: any)=>{
+    return !!user;
+  },
+  createQueryConfig: (queryParams)=>{
+
+    const { accId } = queryParams;
+
+    let select = sql.select(
+      'acc.code as "accCode"',
+      'acc.name as "accName"',
+      'sum(a.amount) as "amount"',
+      'acc.id as "accId"',
+    );
+    select = select.from('voucher v');
+    select = select.innerJoin('article a').on('v.id', 'a.voucher_id');
+    select = select.innerJoin('acc acc').on('acc.id', 'a.acc_id');
+
+    if(accId){
+      select = select.where({'acc.id': accId});
+    }
+    select = select.limit('500');
+    select = select.groupBy('1, 2, 4');
+    select = select.orderBy('acc.code');
+
+    const query = select.toParams();
+
+    return query;
+  }
+}
+
 class Voucher implements Model {
   private server: Server;
 
@@ -85,6 +118,13 @@ class Voucher implements Model {
       },
       handler: this.handleFindById
     },{
+      method: 'GET' as HTTPMethod,
+      public: false,
+      url: '/print/:id',
+      schema: {
+      },
+      handler: this.handlePrintById
+    },{
       method: 'POST' as HTTPMethod,
       public: true,
       url: '/:id',
@@ -100,6 +140,10 @@ class Voucher implements Model {
         address: () => '/findById',
         public: false,
         act: this.actFindById,
+      },{
+        address: () => '/printById',
+        public: false,
+        act: this.actPrintById,
       },{
         address: () => '/create',
         public: true,
@@ -146,6 +190,81 @@ class Voucher implements Model {
     }
 
     return voucher;
+  }
+
+  handlePrintById = async (request, reply) => {
+    const actionParam = {id: request.params.id};
+    const result = await this.server.getDataService().act(this.address()+'/printById', actionParam, request.user);
+    reply.send(result);
+  }
+
+  actPrintById = async (client: PoolClient, actionParam: any, user: any) => {
+    const {id} = actionParam;
+
+    if(!user){
+      throw new Unauthorized(`a user can do this action!`);
+    }
+
+    const sql = `
+    select 
+      json_build_object(
+        'voucherNo',
+        v.voucher_no,
+        'voucherDate',
+        v.voucher_date,
+        'refer',
+        v.refer,
+        'remark',
+        v.remark,
+        'registered',
+        v.registered,
+        'articles',
+        art.articles
+      )::text as voucher
+    from voucher v
+    left join lateral (
+      select art.voucher_id, 
+        array_to_json(
+          array_agg(
+            json_build_object(
+              'id',
+              art.id,
+              'articleNo',
+              art.article_no,
+              'accCode',
+              acc.code,
+              'accName',
+              acc.name,
+              'amount',
+              art.amount,
+              'refer',
+              art.refer,
+              'remark',
+              art.remark
+            )
+          )
+        ) as articles
+      from article art
+      left join acc acc on art.acc_id = acc.id
+      where art.voucher_id = v.id
+      group by 1
+    ) art on true
+    where v.id = $1
+    `;
+
+    const query = {
+      text: sql,
+      values: [id]
+    };
+
+    try{
+      const result = await client.query(query);
+      return result.rows.length > 0 ? result.rows[0].voucher : null;
+    }catch(err){
+      console.log(err)
+      throw err;
+    }
+
   }
 
   handleCreate = async (request, reply) => {
@@ -247,4 +366,4 @@ export const models: Model[] = [
   new Voucher(),
 ];
 
-export const queries = [ voucherQuery ];
+export const queries = [ voucherQuery, report ];
