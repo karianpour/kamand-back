@@ -82,18 +82,20 @@ const report:QueryBuilder = {
     let select = sql.select(
       'acc.code as "accCode"',
       'acc.name as "accName"',
-      'sum(a.amount) as "amount"',
+      // 'sum(a.amount) as "amount"',
+      'a.amount',
       'acc.id as "accId"',
     );
     select = select.from('voucher v');
     select = select.innerJoin('article a').on('v.id', 'a.voucher_id');
     select = select.innerJoin('acc acc').on('acc.id', 'a.acc_id');
+    select = select.crossJoin(sql('generate_series(1, 10) g'));
 
     if(accId){
       select = select.where({'acc.id': accId});
     }
     select = select.limit('500');
-    select = select.groupBy('1, 2, 4');
+    // select = select.groupBy('1, 2, 4');
     select = select.orderBy('acc.code');
 
     const query = select.toParams();
