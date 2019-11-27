@@ -5,23 +5,32 @@ GRANT ALL PRIVILEGES ON DATABASE kamand TO kamand;
 
 -- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-create table acc (
-  id uuid primary key not null,
-  code text not null,
-  name text not null,
-  created_at timestamptz
-);
-
-insert into acc (id, code, name, created_at) 
-  values 
-  ('937c662e-0f07-4a91-a407-bae9e98639f6', '11', 'دارایی', now()),
-  ('937c662e-0f07-4a91-a407-bae9e98639f7', '12', 'بدهی', now()),
-  ('937c662e-0f07-4a91-a407-bae9e98639f8', '13', 'هزینه', now()),
-  ('937c662e-0f07-4a91-a407-bae9e98639f9', '14', 'درآمد', now());
-
 drop table if exists article;
 drop table if exists voucher;
 drop type if exists voucher_types;
+drop table if exists acc;
+
+create table acc (
+  id uuid primary key not null,
+  parent_id uuid not null,
+  code text not null,
+  name text not null,
+  level int not null,
+  leaf boolean not null,
+  created_at timestamptz
+);
+
+insert into acc (id, parent_id, code, name, level, leaf, created_at) 
+  values 
+  ('937c662e-0f07-4a91-a407-bae9e98639f1', '937c662e-0f07-4a91-a407-bae9e98639f1', '11', 'دارایی', 1, false, now()),
+  ('937c662e-0f07-4a91-a407-bae9e98639f2', '937c662e-0f07-4a91-a407-bae9e98639f2', '12', 'بدهی', 1, false, now()),
+  ('937c662e-0f07-4a91-a407-bae9e98639f3', '937c662e-0f07-4a91-a407-bae9e98639f3', '13', 'هزینه', 1, false, now()),
+  ('937c662e-0f07-4a91-a407-bae9e98639f4', '937c662e-0f07-4a91-a407-bae9e98639f4', '14', 'درآمد', 1, true, now()),
+  ('937c662e-0f07-4a91-a407-bae9e98639f5', '937c662e-0f07-4a91-a407-bae9e98639f1', '1101', 'جاری', 2, false, now()),
+  ('937c662e-0f07-4a91-a407-bae9e98639f6', '937c662e-0f07-4a91-a407-bae9e98639f5', '110101', 'بانک', 3, true, now()),
+  ('937c662e-0f07-4a91-a407-bae9e98639f7', '937c662e-0f07-4a91-a407-bae9e98639f1', '1102', 'صندوق', 2, true, now()),
+  ('937c662e-0f07-4a91-a407-bae9e98639f8', '937c662e-0f07-4a91-a407-bae9e98639f2', '1201', 'هزینه', 2, true, now()),
+  ('937c662e-0f07-4a91-a407-bae9e98639f9', '937c662e-0f07-4a91-a407-bae9e98639f2', '1202', 'درآمد', 2, true, now());
 
 create type voucher_types as enum ('normal', 'special');
 

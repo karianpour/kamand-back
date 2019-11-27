@@ -8,12 +8,15 @@ import { throwError, isValidNationalID, isValidMobileFormat, isValidPersianAlpha
 import * as sql from 'sql-bricks-postgres';
 import * as Debug from 'debug';
 
-let debug = Debug('kamand');
+let debug = Debug('kamand-acc');
 
 const fields: string[] = [
   'id',
+  'parent_id as "parentId"',
   'code',
   'name',
+  'level',
+  'leaf',
   'created_at as "createdAt"',
 ];
 
@@ -127,7 +130,7 @@ class Acc implements Model {
   }
 
   actCreate = async (client: PoolClient, actionParam: any, user: any) => {
-    const { id, code, name, createdAt } = actionParam;
+    const { id, parentId, code, name, level, leaf, createdAt } = actionParam;
 
     if (!code) {
       const f = 'code';
@@ -149,11 +152,11 @@ class Acc implements Model {
     const result = await client.query({
       text: `
         insert into acc (
-          id, code, name, created_at
-        ) values ($1, $2, $3, $4)
+          id, parent_id, code, name, level, leaf, created_at
+        ) values ($1, $2, $3, $4, $5, $6, $7)
         returning ${fields.join(', ')};
       `,
-      values: [ id, code, name, createdAt ],
+      values: [ id, parentId, code, name, level, leaf, createdAt ],
     });
 
     return result.rows[0];
@@ -167,7 +170,7 @@ class Acc implements Model {
   }
 
   actUpdate = async (client: PoolClient, actionParam: any, user: any) => {
-    const { id, code, name, createdAt } = actionParam;
+    const { id, parentId, code, name, level, leaf, createdAt } = actionParam;
 
     if(!(hasRole(user, 'admin'))){
       throw new Unauthorized(`only admin can execute this action!`);
@@ -193,12 +196,12 @@ class Acc implements Model {
     const result = await client.query({
       text: `
         update acc set (
-          code, name, created_at
-        ) = ($2, $3, $4)
+          parent_id, code, name, level, leaf, created_at
+        ) = ($2, $3, $4, $5, $6, $7)
         where id = $1
         returning ${fields.join(', ')};
       `,
-      values: [ id, code, name, createdAt ],
+      values: [ id, parentId, code, name, level, leaf, createdAt ],
     });
 
     return result.rows.length > 0 ? result.rows[0] : null;
