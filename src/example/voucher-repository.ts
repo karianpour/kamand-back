@@ -104,6 +104,37 @@ const report:QueryBuilder = {
   }
 }
 
+const voucherStatQuery:QueryBuilder = {
+  query: 'voucherStat',
+  public: false,
+  authorize: (user: any)=>{
+    return !!user;
+  },
+  createQueryConfig: (queryParams, user: any)=>{
+    // if(!(hasRole(user, ['admin']))){
+    //   throw new Unauthorized(`only admin can execute this action!`);
+    // }
+    const {accId} = queryParams;
+
+    // if(!bookId){
+    //   throw new ExpectationFailed(`bookId is needed!`);
+    // }
+
+    let select = sql.select([
+      'count(*) filter (where registered) as "registeredQty"',
+      'count(*) filter (where not registered) as "unregisteredQty"',
+    ]);
+    select = select.from('voucher vou');
+
+    if(accId){
+      select = select.where(sql('vou.id in (select voucher_id from article where acc_id = $1)', accId));
+    }
+
+    const query = select.toParams();
+    return query;
+  }
+}
+
 class Voucher implements Model {
   private server: Server;
 
@@ -368,4 +399,4 @@ export const models: Model[] = [
   new Voucher(),
 ];
 
-export const queries = [ voucherQuery, report ];
+export const queries = [ voucherQuery, report, voucherStatQuery ];

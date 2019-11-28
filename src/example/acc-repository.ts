@@ -48,6 +48,49 @@ const accQuery:QueryBuilder = {
   }
 }
 
+const accStatQuery:QueryBuilder = {
+  query: 'accStat',
+  public: false,
+  authorize: (user: any)=>{
+    return !!user;
+  },
+  createQueryConfig: (queryParams, user: any)=>{
+    // if(!(hasRole(user, ['admin']))){
+    //   throw new Unauthorized(`only admin can execute this action!`);
+    // }
+    const {accId} = queryParams;
+
+    // if(!bookId){
+    //   throw new ExpectationFailed(`bookId is needed!`);
+    // }
+
+    let select = sql.select([
+      'acc.code as "accCode"',
+      'acc.name as "accName"',
+      'sum(art.amount) filter (where art.amount > 0) as "debitAmount"',
+      'sum(-art.amount) filter (where art.amount < 0) as "creditAmount"',
+      'sum(art.amount) as "amount"',
+      'acc.level',
+      'acc.id as "accId"',
+      'acc.leaf',
+    ]);
+    select = select.from('acc acc');
+    select = select.leftJoin('article art').on('art.acc_id', 'acc.id');
+    select = select.innerJoin('voucher vou').on('vou.id', 'art.voucher_id');
+
+    select = select.where({'vou.registered': true});
+    if(accId){
+      select = select.where({'acc.parent_id': accId});
+    }
+
+    select = select.groupBy('1, 2, 6, 7, 8');
+    select = select.orderBy('abs(sum(art.amount)) desc');
+
+    const query = select.toParams();
+    return query;
+  }
+}
+
 class Acc implements Model {
   private server: Server;
 
@@ -212,4 +255,4 @@ export const models: Model[] = [
   new Acc(),
 ];
 
-export const queries = [ accQuery ]
+export const queries = [ accQuery, accStatQuery ]
