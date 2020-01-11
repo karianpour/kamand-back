@@ -1,18 +1,22 @@
 import { HttpServer } from './services/http-server';
 import { DataService } from './services/data-service';
-import { Model, QueryBuilder } from './services/interfaces';
+import { WebSocketService } from './services/websocket-service';
+import { Model, QueryBuilder, EventListener } from './services/interfaces';
 import * as Debug from 'debug';
 let debug = Debug('kamand');
 
 export class Server {
   private dataService: DataService;
   private httpServer: HttpServer;
+  private webSocketService: WebSocketService;
 
   async run(
     host: string = '0.0.0.0',
     port: number = 8050,
     logger: boolean = true,
     origin: boolean = true,
+    socketHost: string = '0.0.0.0',
+    socketPort: number = 8040,
   ){
     debug('starting services');
     this.dataService = new DataService();
@@ -20,6 +24,9 @@ export class Server {
 
     this.httpServer = new HttpServer(this.dataService, host, port, logger, origin);
     this.httpServer.start();
+
+    this.webSocketService = new WebSocketService(socketHost, socketPort);
+    this.webSocketService.start();
   }
 
   getDataService(): DataService{
@@ -28,6 +35,10 @@ export class Server {
 
   getHttpServer(): HttpServer{
     return this.httpServer;
+  }
+
+  getWebSocketService(): WebSocketService{
+    return this.webSocketService;
   }
 
   registerQueryBuilder(queryBuilders: QueryBuilder[]): void{
@@ -40,10 +51,18 @@ export class Server {
     models.forEach( model => model.setServer(this));
   }
 
+  regsiterEventListener(listeners: EventListener[]): void{
+    listeners.forEach( listener => {
+      listener.setServer(this);
+      this.webSocketService.registerListener(listener);
+    });
+  }
+
   async stop() {
     debug('stopping services');
     await this.httpServer.stop();
     await this.dataService.stop();
+    await this.webSocketService.stop();
   }
 
 }

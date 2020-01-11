@@ -2,6 +2,7 @@ import * as fastify from 'fastify';
 import { Server, IncomingMessage, ServerResponse } from 'http';
 import { PoolClient, QueryConfig } from 'pg';
 import { Server as KamandServer } from '../server';
+import { Socket } from 'socket.io';
 
 type QueryFunction = (queryParams: any, user?: any) => QueryConfig;
 
@@ -26,5 +27,11 @@ export interface Model {
   address: () => string,
   routes: RouteFunction,
   actions: ModelActionFunction,
+  setServer: (server: KamandServer) => void,
+}
+
+export interface EventListener {
+  query: string;
+  listener: (socket: Socket, payload: any)=>Promise<void>;
   setServer: (server: KamandServer) => void,
 }

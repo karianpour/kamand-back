@@ -9,13 +9,21 @@ import { Server } from '../lib/index';
 import { models as authModels } from './auth-repository';
 import { queries as accQueries, models as accModels } from './acc-repository';
 import { queries as voucherQueries, models as voucherModels } from './voucher-repository';
+import { listeners as dataEvents } from './data-repository';
 
 let server: Server;
 let debug = Debug('kamand-example');
 
 async function main(){
   server = new Server();
-  await server.run(process.env.SERVER_HOST || '0.0.0.0', parseInt(process.env.SERVER_PORT || '8050'), false, true);
+  await server.run(
+    process.env.SERVER_HOST || '0.0.0.0',
+    parseInt(process.env.SERVER_PORT || '8050'),
+    false,
+    true,
+    process.env.WEBSOCKET_HOST || '0.0.0.0',
+    parseInt(process.env.WEBSOCKET_PORT || '8040'),
+  );
   // server.registerQueryBuilder(queries);
   // server.registerModel(models);
 
@@ -26,6 +34,8 @@ async function main(){
 
   server.registerQueryBuilder(voucherQueries);
   server.registerModel(voucherModels);
+
+  server.regsiterEventListener(dataEvents);
 }
 
 process.on('SIGINT', async function() {

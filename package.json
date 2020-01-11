@@ -1,6 +1,6 @@
 {
   "name": "kamand-back",
-  "version": "1.0.34",
+  "version": "1.0.35",
   "description": "Kamand back end",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -45,23 +45,25 @@
     "@types/debug": "0.0.31",
     "@types/dotenv": "^6.1.0",
     "@types/http-errors": "^1.6.3",
-    "@types/node": "^12.12.12",
-    "@types/pg": "^7.11.2",
+    "@types/node": "^12.12.24",
+    "@types/pg": "^7.14.1",
+    "@types/socket.io": "^2.1.4",
     "nodemon": "^1.19.4",
-    "ts-node": "^8.5.2",
-    "typescript": "^3.7.2"
+    "ts-node": "^8.6.1",
+    "typescript": "^3.7.4"
   },
   "dependencies": {
     "@types/pg-format": "^1.0.0",
     "change-case": "^3.1.0",
     "debug": "^4.1.0",
     "dotenv": "^7.0.0",
-    "fastify": "^2.10.0",
+    "fastify": "^2.11.0",
     "fastify-cors": "^2.2.0",
     "fastify-jwt": "^0.10.0",
     "fastify-plugin": "^1.6.0",
-    "pg": "^7.14.0",
+    "pg": "^7.17.1",
     "pg-format": "^1.0.4",
+    "socket.io": "^2.3.0",
     "sql-bricks-postgres": "^0.5.0"
   }
 }
