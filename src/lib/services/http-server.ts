@@ -2,8 +2,11 @@ import * as fastify from 'fastify';
 import { Server, IncomingMessage, ServerResponse } from 'http';
 import 'fastify-cors';
 import 'fastify-jwt';
+import 'fastify-file-upload';
+
 import * as fastifyCors from 'fastify-cors';
 import * as fastifyJwt from 'fastify-jwt';
+import * as fastifyFileUpload from 'fastify-file-upload';
 import { DataService } from './data-service';
 import { InternalServerError } from 'http-errors';
 import * as Debug from 'debug';
@@ -37,6 +40,11 @@ export class HttpServer {
 
     this.fastifyServer.register(fastifyJwt, {
       secret: process.env.JWT_SECRET_KEY,
+    });
+
+    this.fastifyServer.register(fastifyFileUpload, {
+      limits: { fileSize: 2 * 1024 * 1024 },
+      abortOnLimit: true,
     });
 
     this.fastifyServer.decorate("authenticate", async function(request, reply) {

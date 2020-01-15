@@ -9,6 +9,7 @@ import { Server } from '../lib/index';
 import { models as authModels } from './auth-repository';
 import { queries as accQueries, models as accModels } from './acc-repository';
 import { queries as voucherQueries, models as voucherModels } from './voucher-repository';
+import { models as fileModels } from './file-repository';
 import { listeners as dataEvents } from './data-repository';
 
 let server: Server;
@@ -34,6 +35,8 @@ async function main(){
 
   server.registerQueryBuilder(voucherQueries);
   server.registerModel(voucherModels);
+
+  server.registerModel(fileModels);
 
   server.regsiterEventListener(dataEvents);
 }

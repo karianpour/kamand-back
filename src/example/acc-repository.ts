@@ -120,6 +120,13 @@ class Acc implements Model {
       schema: {
       },
       handler: this.handleUpdate
+    },{
+      method: 'POST' as HTTPMethod,
+      public: true,
+      url: '/file/:id',
+      schema: {
+      },
+      handler: this.handleFile
     }];
   }
 
@@ -248,6 +255,15 @@ class Acc implements Model {
     });
 
     return result.rows.length > 0 ? result.rows[0] : null;
+  }
+
+  handleFile = async (request, reply) => {
+    console.log(request.raw.files);
+    console.log(`param1 : ${request.body.param1}`);
+    console.log(`param2: ${request.body.param2}`);
+    console.log(`id: ${request.params.id}`);
+
+    reply.send({response: 'mehrnoosh is learning linux and nodejs'});
   }
 }
 
