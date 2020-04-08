@@ -10,7 +10,8 @@ import { models as authModels } from './auth-repository';
 import { queries as accQueries, models as accModels } from './acc-repository';
 import { queries as voucherQueries, models as voucherModels } from './voucher-repository';
 import { models as fileModels } from './file-repository';
-import { listeners as dataEvents } from './data-repository';
+import { listener as jobEvent } from './job-repository';
+import { listener as longTaskEvent } from './long-task-repository';
 
 let server: Server;
 let debug = Debug('kamand-example');
@@ -38,7 +39,8 @@ async function main(){
 
   server.registerModel(fileModels);
 
-  server.regsiterEventListener(dataEvents);
+  server.regsiterEventListener(jobEvent);
+  server.regsiterEventListener(longTaskEvent);
 }
 
 process.on('SIGINT', async function() {

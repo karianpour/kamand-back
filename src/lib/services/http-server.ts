@@ -11,7 +11,7 @@ import { DataService } from './data-service';
 import { InternalServerError } from 'http-errors';
 import * as Debug from 'debug';
 import { Model } from './interfaces';
-import { SignOptions } from 'jsonwebtoken';
+import { SignOptions, VerifyOptions } from 'jsonwebtoken';
 
 let debug = Debug('kamand');
 
@@ -113,6 +113,10 @@ export class HttpServer {
 
   sign(payload: fastify.JWTTypes.SignPayloadType, options?: SignOptions): string{
     return this.fastifyServer.jwt.sign(payload, options);
+  }
+
+  verify(token: string, options?: VerifyOptions): fastify.JWTTypes.VerifyPayloadType{
+    return this.fastifyServer.jwt.verify(token, options);
   }
 
   registerModelRoutes(models: Model[]){//routes: fastify.RouteOptions<Server, IncomingMessage, ServerResponse, fastify.DefaultQuery, fastify.DefaultParams, fastify.DefaultHeaders, any>[]){

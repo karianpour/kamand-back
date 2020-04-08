@@ -25,7 +25,7 @@ export class Server {
     this.httpServer = new HttpServer(this.dataService, host, port, logger, origin);
     this.httpServer.start();
 
-    this.webSocketService = new WebSocketService(socketHost, socketPort);
+    this.webSocketService = new WebSocketService(this, socketHost, socketPort);
     this.webSocketService.start();
   }
 
@@ -51,11 +51,10 @@ export class Server {
     models.forEach( model => model.setServer(this));
   }
 
-  regsiterEventListener(listeners: EventListener[]): void{
-    listeners.forEach( listener => {
-      listener.setServer(this);
-      this.webSocketService.registerListener(listener);
-    });
+  regsiterEventListener(listener: EventListener): void{
+    listener.setServer(this);
+    this.webSocketService.registerListener(listener);
+    this.dataService.registerModelActions([listener]);
   }
 
   async stop() {

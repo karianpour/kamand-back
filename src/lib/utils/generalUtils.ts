@@ -5,6 +5,7 @@ export function pause(timout: number): Promise<void> {
   });
 }
 
+export const sleep = pause;
 
 /** @private is the given object a Function? */
 export const isFunction = (obj: any): obj is Function =>

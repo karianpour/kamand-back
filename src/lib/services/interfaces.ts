@@ -2,7 +2,7 @@ import * as fastify from 'fastify';
 import { Server, IncomingMessage, ServerResponse } from 'http';
 import { PoolClient, QueryConfig } from 'pg';
 import { Server as KamandServer } from '../server';
-import { Socket } from 'socket.io';
+import { KamandSocket } from './websocket-service';
 
 type QueryFunction = (queryParams: any, user?: any) => QueryConfig;
 
@@ -23,15 +23,23 @@ export interface ModelAction {
 
 type ModelActionFunction = () => ModelAction[];
 
-export interface Model {
-  address: () => string,
+export interface Model extends Actionable {
   routes: RouteFunction,
-  actions: ModelActionFunction,
   setServer: (server: KamandServer) => void,
 }
 
-export interface EventListener {
+export interface Actionable {
+  address: () => string,
+  actions: ModelActionFunction,
+}
+
+export interface EventListener extends Actionable {
   query: string;
-  listener: (socket: Socket, payload: any)=>Promise<void>;
+  listener: (socket: KamandSocket, payload: any)=>Promise<void>;
   setServer: (server: KamandServer) => void,
+}
+
+export interface NotificationListener {
+  channel: string;
+  notify(payload?: string): void;
 }

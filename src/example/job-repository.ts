@@ -7,11 +7,12 @@ import { BadRequest, Conflict, ExpectationFailed, Unauthorized } from 'http-erro
 import { throwError, isValidNationalID, isValidMobileFormat, isValidPersianAlphabetFormat } from '../lib/services/value-validators';
 import * as sql from 'sql-bricks-postgres';
 import * as Debug from 'debug';
-import { Socket } from "socket.io";
+import { KamandSocket } from "../lib/services/websocket-service";
+import { sleep } from "../lib/utils/generalUtils";
 
-let debug = Debug('kamand-data');
+let debug = Debug('kamand-job');
 
-class Data implements EventListener {
+class Job implements EventListener {
   private server: Server;
 
   setServer(s: Server) {
@@ -20,17 +21,19 @@ class Data implements EventListener {
 
   query = 'export-data';
 
-  listener = async (socket: Socket, data: any) => {
+  address() { return '/export-data'; }
+
+  listener = async (socket: KamandSocket, data: any) => {
       // client: PoolClient, actionParam: any, user: any
       // this.server.getDataService()
       console.log({data});
-      await sleep(800);
+      await sleep(3800);
       socket.emit(this.query, {step: 1});
-      await sleep(800);
+      await sleep(3800);
       socket.emit(this.query, {step: 2});
-      await sleep(800);
+      await sleep(3800);
       socket.emit(this.query, {step: 3});
-      await sleep(800);
+      await sleep(3800);
       socket.emit(this.query, {step: 4});
       // const {id} = actionParam;
 
@@ -48,13 +51,11 @@ class Data implements EventListener {
 
       // return result.rows.length > 0 ? result.rows[0] : null;
   }
+
+  actions() {
+    return [];
+  }
 }
 
-export const listeners: EventListener[] = [ 
-  new Data(),
-];
+export const listener: EventListener = new Job();
 
-
-export function sleep(ms:number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}

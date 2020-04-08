@@ -94,3 +94,37 @@ values (
   'ref', 'rem', now()
 );
 
+
+
+/*
+drop trigger if exists long_task_update on long_task;
+drop table if exists long_task;
+drop function long_task_update_notify;
+*/
+
+create table long_task (
+  id uuid primary key not null,
+  title text not null,
+  created_at timestamptz null,
+  progress int null,
+  finished_at timestamptz null
+);
+
+create or replace function long_task_update_notify() returns trigger as $$
+declare
+  id text;
+  old_id text;
+begin
+  if tg_op = 'INSERT' or tg_op = 'UPDATE' then
+    id = NEW.id::text;
+  end if;
+  if tg_op = 'DELETE' or tg_op = 'UPDATE' then
+    old_id = OLD.id::text;
+  end if;
+  perform pg_notify('long_task_update', json_build_object('id', id, 'old_id', old_id, 'type', tg_op)::text);
+  return null;
+end;
+$$ language plpgsql;
+
+create trigger long_task_update after insert or update or delete on long_task for each row execute procedure long_task_update_notify();
+

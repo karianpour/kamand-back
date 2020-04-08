@@ -1,7 +1,7 @@
-import {Pool, PoolConfig, PoolClient, types} from 'pg';
+import {Pool, PoolConfig, PoolClient, Client, ClientConfig, types, Notification} from 'pg';
 import * as Debug from 'debug';
 import { Unauthorized, NotFound } from 'http-errors';
-import { QueryBuilder, ModelAction, Model } from './interfaces';
+import { QueryBuilder, ModelAction, Model, Actionable, NotificationListener } from './interfaces';
 
 let debug = Debug('kamand');
 
@@ -13,10 +13,13 @@ types.setTypeParser(types.builtins.DATE, parseDate);
 
 export class DataService {
 
-  private config: PoolConfig;
+  private config: ClientConfig;
+  private poolConfig: PoolConfig;
+  private notificationClient: Client;
   private dataPool: Pool;
   private queryBuilders: Map<string, QueryBuilder>;
   private actions: Map<string, ModelAction>;
+  private notificationListeners: Map<string, NotificationListener[]>;
 
   constructor(){
     this.config = {
@@ -25,22 +28,47 @@ export class DataService {
       password: process.env.DB_PASS,
       user: process.env.DB_USER,
       database: process.env.DB_DATABASE,
+    };
+    this.poolConfig = {
+      ...this.config,
       max: 10,
       idleTimeoutMillis: 5 * 60 * 1000,
       connectionTimeoutMillis: 10 * 1000,
     };
-
+  
     this.queryBuilders = new Map();
     this.actions = new Map();
+    this.notificationListeners = new Map();
   }
 
   async connect(){
-    this.dataPool = new Pool(this.config);
+    this.dataPool = new Pool(this.poolConfig);
     this.dataPool.on('error', (error)=>{
       debug(`pg unhandled error ${error}`);
     });
 
-    debug(`connected to pg ${this.config.host}`);
+    debug(`connected to pg ${this.poolConfig.host}`);
+
+    this.notificationClient = new Client(this.config);
+    await this.notificationClient.connect();
+    this.notificationClient.on('notification', async (msg: Notification) => {
+      const nls = this.notificationListeners.get(msg.channel);
+      if(nls) {
+        nls.forEach( nl => nl.notify(msg.payload));
+      }
+    });
+    debug(`connected to pg ${this.poolConfig.host}`);
+  }
+
+  registerNotificationListener(notificationListener: NotificationListener): void {
+    const { channel } = notificationListener;
+    const nls = this.notificationListeners.get(channel);
+    if(!nls){
+      this.notificationListeners.set(channel, [notificationListener]);
+      this.notificationClient.query(`LISTEN ${channel}`);
+    }else{
+      nls.push(notificationListener);
+    }
   }
 
   registerQueryBuilder(queryBuilders: QueryBuilder[]): void{
@@ -99,7 +127,7 @@ export class DataService {
     await this.dataPool.end();
   }
 
-  registerModelActions(models: Model[]): void{
+  registerModelActions(models: Actionable[]): void{
     models.forEach( model => {
       const modelAddress = model.address();
       const actions = model.actions();

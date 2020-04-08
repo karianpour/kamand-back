@@ -3,6 +3,7 @@ import SocketIOServer = require('socket.io');
 // import { RaceOrganiser } from './race/race-organiser';
 // import { RaceController } from './race/race-controller';
 import * as http from 'http';
+import { Server as KamandServer } from '../server';
 
 import * as Debug from 'debug';
 import { EventListener } from './interfaces';
@@ -15,14 +16,20 @@ export type SockIOMiddleware = (
   fn: (err?: any) => void,
 ) => void;
 
+export type KamandSocket = Socket & {user: any};
+export type FutureUpdate = { socket: KamandSocket, payload: any };
+
 export class WebSocketService {
   private io: Server;
   readonly httpServer: http.Server;
   readonly listeners: EventListener[] = [];
   
   private options: ServerOptions;
+  private futureUpdates: Map<string, FutureUpdate[]>;
+  private futureUpdateKeys: Map<string, string[]>;
 
   constructor(
+    private server: KamandServer,
     private host: string,
     private port: number,
   ) {
@@ -33,6 +40,8 @@ export class WebSocketService {
     };
     this.io = SocketIOServer(this.options);
     this.httpServer = http.createServer();
+    this.futureUpdates = new Map();
+    this.futureUpdateKeys = new Map();
   }
 
   use(fn: SockIOMiddleware) {
@@ -56,12 +65,33 @@ export class WebSocketService {
     this.listeners.push(listener);
   }
 
-  connection = (socket: Socket)=>{
+  connection = (socket: KamandSocket)=>{
+    socket.on('disconnect', (reason: string) => this.disconnected(socket, reason));
+    socket.on('error', (error: any) => this.error(socket, error));
+    socket.on('authorize', (data: string) => this.authorize(socket, data));
     this.listeners.forEach(listener => {
       socket.on(listener.query, (payload: any) => {
         listener.listener(socket, payload);
       });
     });
+  }
+
+  authorize = (socket: KamandSocket, data: string)=>{
+    try {
+      const payload: any = this.server.getHttpServer().verify(data);
+      socket.user = payload;
+    } catch (error) {
+      debug(`error while verifying token with ${error}\n the token was: \n ${data}`);
+    }
+  }
+
+  disconnected = (socket: KamandSocket, reason: string)=>{
+    debug(`socket ${socket.id} disconnected with reason ${reason}`);
+    this.removeForFutureUpdateBySocket(socket);
+  }
+
+  error = (socket: KamandSocket, error: any)=>{
+    debug(`socket ${socket.id} encountered error: ${error?.toString()}`);
   }
 
   getIo() {
@@ -84,5 +114,67 @@ export class WebSocketService {
       });
     });
     await close;
+  }
+
+  addForFutureUpdate(key: string, socket: KamandSocket, payload: any): void{
+    const futureUpdates = this.futureUpdates.get(key);
+    if(!futureUpdates){
+      this.futureUpdates.set(key, [{socket, payload}]);
+      this.addFutureUpdateKey(socket.id, key);
+    }else{
+      const index = futureUpdates.findIndex( futureUpdate => futureUpdate.socket === socket);
+      if(index === -1){
+        futureUpdates.push({socket, payload});
+        this.addFutureUpdateKey(socket.id, key);
+      }
+    }
+  }
+
+  removeForFutureUpdate(key: string, socket: KamandSocket): void{
+    const futureUpdates = this.futureUpdates.get(key);
+    if(futureUpdates){
+      const index = futureUpdates.findIndex(({socket: s}) => s === socket);
+      if(index!==-1){
+        futureUpdates.splice(index);
+      }
+    }
+    this.removeFutureUpdateKey(socket.id, key);
+  }
+
+  findForFutureUpdate(key: string): FutureUpdate[]{
+    return this.futureUpdates.get(key);
+  }
+
+  addFutureUpdateKey(socketId: string, key: string){
+    const keys = this.futureUpdateKeys.get(socketId);
+    if(!keys){
+      this.futureUpdateKeys.set(socketId, [key]);
+    }else{
+      keys.push(key);
+    }
+  }
+
+  removeFutureUpdateKey(socketId: string, key: string){
+    const keys = this.futureUpdateKeys.get(socketId);
+    if(keys){
+      const index = keys.findIndex(k => k === key);
+      if(index!==-1){
+        keys.splice(index);
+      }
+    }
+  }
+
+  removeForFutureUpdateBySocket(socket: KamandSocket){
+    const keys = this.futureUpdateKeys.get(socket.id);
+    if(keys){
+      keys.forEach( key => {
+        const futureUpdates = this.futureUpdates.get(key);
+        const index = futureUpdates.findIndex( ({socket: s}) => s === socket);
+        if(index){
+          futureUpdates.splice(index);
+        }
+      });
+      this.futureUpdateKeys.delete(socket.id);
+    }
   }
 }
