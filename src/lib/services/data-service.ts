@@ -10,7 +10,13 @@ const parseDate = function(val: string): string {
   return val+'T00:00:00.000Z';
 }
 types.setTypeParser(types.builtins.DATE, parseDate);
-
+const parseTimestamp = function(val: string): string {
+  //K1: I normally do not use time on server, so let's not waist time and energy for that
+return val;
+}
+types.setTypeParser(types.builtins.TIMESTAMP, parseTimestamp);
+types.setTypeParser(types.builtins.TIMESTAMPTZ, parseTimestamp);
+ 
 export class DataService {
 
   private config: ClientConfig;
