@@ -13,6 +13,8 @@ import { snakeCasedFields } from "../lib/utils/dbUtils";
 
 let debug = Debug('kamand-long-task');
 
+const ProgressTotalStep = 22;
+
 const fields: string[] = snakeCasedFields([
   'id',
   'title',
@@ -90,6 +92,10 @@ class LongTask implements EventListener {
         address: () => '/start',
         public: false,
         act: this.actStart,
+      }, {
+        address: () => '/progress',
+        public: false,
+        act: this.actProgress,
       },
     ]
   }
@@ -102,8 +108,10 @@ class LongTask implements EventListener {
     // }
 
     let select = sql.select(...(fields.map(f => 'lt.'+f)));
+    select = select.select(`${ProgressTotalStep} as "progressTotalStep"`);
     select = select.from('long_task lt');
     select = select.limit(5);
+    select = select.orderBy('lt.created_at desc');
 
     const query = select.toParams();
 
@@ -120,6 +128,7 @@ class LongTask implements EventListener {
     // }
 
     let select = sql.select(...(fields.map(f => 'lt.'+f)));
+    select = select.select(`${ProgressTotalStep} as "progressTotalStep"`);
     select = select.from('long_task lt');
     select = select.where(sql('id = $1', id));
 
@@ -138,6 +147,7 @@ class LongTask implements EventListener {
     // }
 
     let select = sql.select(...(fields.map(f => 'lt.'+f)));
+    select = select.select(`${ProgressTotalStep} as "progressTotalStep"`);
     select = select.from('long_task lt');
     select = select.where(sql('id = $1', id));
 
@@ -165,21 +175,121 @@ class LongTask implements EventListener {
       values: [ id, title ],
     });
 
-    const interval = setInterval(async ()=>{
-      const r = await client.query({
-        text: `
-          update long_task set (progress, finished_at) = (progress + 1, (case when progress < 10 then null else now() end))
-          where id = $1
-          returning progress, finished_at;
-        `,
-        values: [ id ],
-      });
-      if(r.rows[0].finished_at){
-        clearInterval(interval);
-      }
-    }, 2000);
+    setImmediate(() => this.doLongTask(id, user));
 
-    return result.rows.length > 0 ? camelCaseObject(result.rows[0]) : null;
+    const started = camelCaseObject(result.rows[0]);
+    started.progressTotalStep = ProgressTotalStep;
+    return started;
+  }
+
+  actProgress = async (client: PoolClient, actionParam: any, user: any) => {
+    const { id, progress, finished } = actionParam;
+
+    await client.query({
+      text: `
+        update long_task set (progress, finished_at) = ($2, (case when $3 then now() else null end))
+        where id = $1
+        returning progress, finished_at;
+      `,
+      values: [ id, progress, !!finished ],
+    });
+
+  }
+
+  doLongTask = async (id: string, user: any) => {
+    let client: PoolClient;
+    
+    try{
+      client = await this.server.getDataService().giveDbClient();
+      await client.query('begin transaction isolation level serializable;');
+      // here you can use this client for long task like backup
+
+      let progress: number = 0, finished: boolean = false;
+
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      await sleep(4000);
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      progress++;
+      finished = true;
+      await this.server.getDataService().act(this.address()+'/progress', { id, progress, finished }, user);
+      if(progress !== ProgressTotalStep){
+        debug(`Progress (${progress}) finished with different step than ProgressTotalStep (${ProgressTotalStep})`);
+      }
+    
+
+    } catch (error) {
+      if(client){
+        try {
+          await client.query('rollback');
+        } catch (error) {}
+      }
+      throw error;
+    }finally{
+      try {
+        client?.release();
+      } catch (error) {}
+    }
+
   }
 }
 

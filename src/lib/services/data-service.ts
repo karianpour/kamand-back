@@ -128,9 +128,14 @@ export class DataService {
     }
   }
 
+  async giveDbClient() {
+    return await this.dataPool.connect();
+  }
+
   async stop(){
     debug('stopping data service');
-    await this.dataPool.end();
+    await this.dataPool?.end();
+    await this.notificationClient?.end();
   }
 
   registerModelActions(models: Actionable[]): void{
