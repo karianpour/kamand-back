@@ -10,13 +10,14 @@ declare module "fastify" {
     authenticate(): void;
   }
 
-  export interface FastifyRequest<
-    HttpRequest,
-    Query = fastify.DefaultQuery,
-    Params = fastify.DefaultParams,
-    Headers = fastify.DefaultHeaders,
-    Body = fastify.DefaultBody
-  > {
-    user(): any;
-  }
+  // K1 : it is declared in the fastify-jwt package
+  // export interface FastifyRequest<
+  //   HttpRequest,
+  //   Query = fastify.DefaultQuery,
+  //   Params = fastify.DefaultParams,
+  //   Headers = fastify.DefaultHeaders,
+  //   Body = fastify.DefaultBody
+  // > {
+  //   user(): any;
+  // }
 }
