@@ -1,7 +1,9 @@
-import {Pool, PoolConfig, PoolClient, Client, ClientConfig, types, Notification} from 'pg';
+import {Pool, PoolConfig, PoolClient, Client, ClientConfig, types, Notification, QueryConfig} from 'pg';
 import * as Debug from 'debug';
 import { Unauthorized, NotFound } from 'http-errors';
 import { QueryBuilder, ModelAction, Model, Actionable, NotificationListener } from './interfaces';
+import { v4 as uuidv4 } from 'uuid';
+
 
 let debug = Debug('kamand');
 
@@ -190,6 +192,30 @@ export class DataService {
         } catch (error) {}
       }
       throw error;
+    }
+  }
+}
+
+export async function* iterateOnQuery(client: PoolClient, query: QueryConfig, chunkSize: number) {
+  const name = uuidv4();
+
+  try {
+    await client.query(`DECLARE "${name}" NO SCROLL CURSOR FOR ${query.text}`, query.values);
+
+    while (true) {
+      const record = await client.query(`FETCH ${chunkSize} "${name}"`);
+
+      if (record.rows.length===0) {
+        break;
+      }
+
+      yield record;
+    }
+  } finally {
+    try{
+      await client.query(`CLOSE "${name}"`);
+    }catch(err){
+      debug(err);
     }
   }
 }

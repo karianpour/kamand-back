@@ -10,6 +10,7 @@ import * as Debug from 'debug';
 import { KamandSocket } from "../lib/services/websocket-service";
 import { sleep, camelCaseObject } from "../lib/utils/generalUtils";
 import { snakeCasedFields } from "../lib/utils/dbUtils";
+import { iterateOnQuery } from "../lib/services/data-service";
 
 let debug = Debug('kamand-long-task');
 
@@ -204,6 +205,14 @@ class LongTask implements EventListener {
       await client.query('begin transaction isolation level serializable;');
       // here you can use this client for long task like backup
 
+      const itor = iterateOnQuery(client, {text: 'select * from generate_series(0, 500)'}, 10);
+
+      for await (let r of itor){
+        console.log(r.rows);
+      }
+
+
+    
       let progress: number = 0, finished: boolean = false;
 
       progress++;
