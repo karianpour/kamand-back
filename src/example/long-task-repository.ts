@@ -205,7 +205,7 @@ class LongTask implements EventListener {
       await client.query('begin transaction isolation level serializable;');
       // here you can use this client for long task like backup
 
-      const itor = iterateOnQuery(client, {text: 'select * from generate_series(0, 500)'}, 10);
+      const itor = iterateOnQuery(client, {text: 'select * from generate_series(0, 500)'}, 10, true);
 
       for await (let r of itor){
         console.log(r.rows);

@@ -196,14 +196,14 @@ export class DataService {
   }
 }
 
-export async function* iterateOnQuery(client: PoolClient, query: QueryConfig, chunkSize: number) {
+export async function* iterateOnQuery(client: PoolClient, query: QueryConfig, chunkSize: number, arrayMode: boolean = true) {
   const name = uuidv4();
 
   try {
     await client.query(`DECLARE "${name}" NO SCROLL CURSOR FOR ${query.text}`, query.values);
 
     while (true) {
-      const record = await client.query(`FETCH ${chunkSize} "${name}"`);
+      const record = await client.query({text: `FETCH ${chunkSize} "${name}"`, rowMode: arrayMode ? 'array' : undefined});
 
       if (record.rows.length===0) {
         break;
