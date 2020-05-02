@@ -22,6 +22,13 @@ class Auth implements Model {
       schema: {
       },
       handler: this.handleLogin
+    }, {
+      method: 'POST' as HTTPMethod,
+      public: true,
+      url: '/forgot',
+      schema: {
+      },
+      handler: this.handleForgot
     }];
   }
 
@@ -31,6 +38,11 @@ class Auth implements Model {
         address: () => '/login',
         public: true,
         act: this.actLogin,
+      },
+      {
+        address: () => '/forgot',
+        public: true,
+        act: this.actForgot,
       },
     ]
   }
@@ -45,7 +57,7 @@ class Auth implements Model {
       result.token = this.server.getHttpServer().sign({ id: result.id, roles: ['admin'] });
       reply.send(result);
     }
-    await pause(500);//this pause is to avoid a hacker to brute-force attack
+    await pause(500);//this pause is to make the life of hacker harder for brute-force attack
     throwError('mobileNumber', 'mismatch', 'mobileNumber mismatch!', 'auth.mobileNumber');
   }
 
@@ -57,6 +69,27 @@ class Auth implements Model {
       }
     }
     return null;
+  }
+
+  handleForgot = async (request, reply) => {
+    const actionParam = {
+      mobileNumber: request.body.mobileNumber || request.body.username,
+    };
+    const result = await this.server.getDataService().act(this.address()+'/forgot', actionParam);
+    if(!result){
+      await pause(500);//this pause is to make the life of hacker harder for brute-force attack
+    }
+    reply.send(result);
+  }
+
+  actForgot = async (client: PoolClient, actionParam: any) => {
+    console.log({actionParam})
+    if(actionParam.mobileNumber === '09121161998'){
+      console.log('password reset')
+      return true;
+    }
+    console.log('password not reset')
+    return false;
   }
 }
 
