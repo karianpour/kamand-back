@@ -86,7 +86,7 @@ export class WebSocketService {
   }
 
   disconnected = (socket: KamandSocket, reason: string)=>{
-    debug(`socket ${socket.id} disconnected with reason ${reason}`);
+    // debug(`socket ${socket.id} disconnected with reason ${reason}`);
     this.removeForFutureUpdateBySocket(socket);
   }
 
