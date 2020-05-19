@@ -194,6 +194,27 @@ export class DataService {
       throw error;
     }
   }
+
+  async actInMyTransaction(client: PoolClient, address: string, actionParams: any, user?:any){
+    // debug(JSON.stringify(this.queryBuilders, null, 2))
+
+    const action = this.actions.get(address);
+
+    if(!action){
+      throw new NotFound(`action ${address} not found!`);
+    }
+
+    if(!action.public){
+      if(!user){
+        // if you encounter this error, the route that is calling this action is defined as public
+        throw new Unauthorized(`no user defined but the action is private`);
+      }
+    }
+
+    const result = await action.act(client, actionParams, user);
+
+    return result;
+  }
 }
 
 export async function* iterateOnQuery(client: PoolClient, query: QueryConfig, chunkSize: number, arrayMode: boolean = true) {
