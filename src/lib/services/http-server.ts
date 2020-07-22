@@ -1,4 +1,4 @@
-import * as fastify from 'fastify';
+import fastify, { FastifyInstance, JWTTypes, RawServerDefault } from 'fastify';
 import { Server, IncomingMessage, ServerResponse } from 'http';
 import 'fastify-cors';
 import 'fastify-jwt';
@@ -17,7 +17,7 @@ let debug = Debug('kamand');
 
 export class HttpServer {
 
-  private fastifyServer:fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>;
+  private fastifyServer: FastifyInstance;
 
   constructor(
     private dataService: DataService,
@@ -34,7 +34,7 @@ export class HttpServer {
       logger: this.logger,
     });
 
-    this.fastifyServer.register(fastifyCors, { 
+    this.fastifyServer.register(fastifyCors as any, { 
       origin: this.origin,
     });
 
@@ -55,7 +55,7 @@ export class HttpServer {
       }
     })  
 
-    this.fastifyServer.get<fastify.DefaultQuery, {queryData: string}, unknown>(
+    this.fastifyServer.get<{Params: {queryData: string}}>(
       '/data/:queryData',
       {
       },
@@ -77,7 +77,7 @@ export class HttpServer {
       }
     );
 
-    this.fastifyServer.get<fastify.DefaultQuery, {queryData: string}, unknown>(
+    this.fastifyServer.get<{Params: {queryData: string}}>(
       '/private/data/:queryData',
       {
         preValidation: [this.fastifyServer.authenticate]
@@ -111,11 +111,11 @@ export class HttpServer {
     await this.fastifyServer.close();
   }
 
-  sign(payload: fastify.JWTTypes.SignPayloadType, options?: SignOptions): string{
+  sign(payload: JWTTypes.SignPayloadType, options?: SignOptions): string{
     return this.fastifyServer.jwt.sign(payload, options);
   }
 
-  verify(token: string, options?: VerifyOptions): fastify.JWTTypes.VerifyPayloadType{
+  verify(token: string, options?: VerifyOptions): JWTTypes.VerifyPayloadType{
     return this.fastifyServer.jwt.verify(token, options);
   }
 

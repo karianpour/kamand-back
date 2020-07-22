@@ -1,6 +1,6 @@
 import { Model, Server, QueryBuilder } from "../lib/index";
 import { PoolClient } from "pg";
-import { HTTPMethod } from "fastify";
+import { HTTPMethods } from "fastify";
 import { uniqueField } from '../lib/services/data-validators';
 import { hasRole } from '../lib/services/auth-functions';
 import { BadRequest, Conflict, ExpectationFailed, Unauthorized } from 'http-errors';
@@ -144,21 +144,21 @@ class Voucher implements Model {
 
   routes() {
     return [{
-      method: 'GET' as HTTPMethod,
+      method: 'GET' as HTTPMethods,
       public: false,
       url: '/:id',
       schema: {
       },
       handler: this.handleFindById
     },{
-      method: 'GET' as HTTPMethod,
+      method: 'GET' as HTTPMethods,
       public: false,
       url: '/print/:id',
       schema: {
       },
       handler: this.handlePrintById
     },{
-      method: 'POST' as HTTPMethod,
+      method: 'POST' as HTTPMethods,
       public: true,
       url: '/:id',
       schema: {

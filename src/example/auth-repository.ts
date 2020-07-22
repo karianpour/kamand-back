@@ -1,6 +1,6 @@
 import { Model, Server, QueryBuilder } from "../lib/index";
 import { PoolClient } from "pg";
-import { HTTPMethod } from "fastify";
+import { HTTPMethods } from "fastify";
 import { pause } from '../lib/utils/generalUtils';
 import { throwError } from '../lib/services/value-validators';
 import * as Debug from 'debug';
@@ -16,14 +16,14 @@ class Auth implements Model {
 
   routes() {
     return [{
-      method: 'POST' as HTTPMethod,
+      method: 'POST' as HTTPMethods,
       public: true,
       url: '/login',
       schema: {
       },
       handler: this.handleLogin
     }, {
-      method: 'POST' as HTTPMethod,
+      method: 'POST' as HTTPMethods,
       public: true,
       url: '/forgot',
       schema: {

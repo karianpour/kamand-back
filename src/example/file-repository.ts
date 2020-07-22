@@ -1,6 +1,6 @@
 import { Model, Server, QueryBuilder } from "../lib/index";
 import { PoolClient } from "pg";
-import { HTTPMethod } from "fastify";
+import { HTTPMethods } from "fastify";
 import { uniqueField } from '../lib/services/data-validators';
 import { hasRole } from '../lib/services/auth-functions';
 import { BadRequest, Conflict, ExpectationFailed, Unauthorized } from 'http-errors';
@@ -19,7 +19,7 @@ class File implements Model {
 
   routes() {
     return [{
-      method: 'POST' as HTTPMethod,
+      method: 'POST' as HTTPMethods,
       public: false,
       url: '/:id',
       schema: {

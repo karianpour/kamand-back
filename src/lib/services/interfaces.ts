@@ -13,7 +13,7 @@ export interface QueryBuilder {
   createQueryConfig: QueryFunction,
 }
 
-type RouteFunction = () => (fastify.RouteOptions<Server, IncomingMessage, ServerResponse, fastify.DefaultQuery, fastify.DefaultParams, fastify.DefaultHeaders, any> & {public: boolean})[];
+type RouteFunction = () => (fastify.RouteOptions & {public: boolean})[];
 
 export interface ModelAction {
   address: () => string;

@@ -1,23 +1,13 @@
-// import * as fastify from "fastify";
-import * as http from "http";
+import * as fastify from 'fastify';
 
 declare module "fastify" {
-  export interface FastifyInstance<
-    HttpServer = http.Server,
-    HttpRequest = http.IncomingMessage,
-    HttpResponse = http.ServerResponse
-  > {
+  interface FastifyInstance {
     authenticate(): void;
   }
 
   // K1 : it is declared in the fastify-jwt package
-  // export interface FastifyRequest<
-  //   HttpRequest,
-  //   Query = fastify.DefaultQuery,
-  //   Params = fastify.DefaultParams,
-  //   Headers = fastify.DefaultHeaders,
-  //   Body = fastify.DefaultBody
-  // > {
+  // export interface FastifyRequest
+  // {
   //   user(): any;
   // }
 }

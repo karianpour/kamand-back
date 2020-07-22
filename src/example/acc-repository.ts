@@ -1,6 +1,6 @@
 import { Model, Server, QueryBuilder } from "../lib/index";
 import { PoolClient } from "pg";
-import { HTTPMethod } from "fastify";
+import { HTTPMethods } from "fastify";
 import { uniqueField } from '../lib/services/data-validators';
 import { hasRole } from '../lib/services/auth-functions';
 import { BadRequest, Conflict, ExpectationFailed, Unauthorized } from 'http-errors';
@@ -100,28 +100,28 @@ class Acc implements Model {
 
   routes() {
     return [{
-      method: 'GET' as HTTPMethod,
+      method: 'GET' as HTTPMethods,
       public: false,
       url: '/:id',
       schema: {
       },
       handler: this.handleFindById
     },{
-      method: 'POST' as HTTPMethod,
+      method: 'POST' as HTTPMethods,
       public: true,
       url: '/:id',
       schema: {
       },
       handler: this.handleCreate
     },{
-      method: 'PUT' as HTTPMethod,
+      method: 'PUT' as HTTPMethods,
       public: false,
       url: '/:id',
       schema: {
       },
       handler: this.handleUpdate
     },{
-      method: 'POST' as HTTPMethod,
+      method: 'POST' as HTTPMethods,
       public: true,
       url: '/file/:id',
       schema: {
