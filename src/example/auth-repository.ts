@@ -20,6 +20,38 @@ class Auth implements Model {
       public: true,
       url: '/login',
       schema: {
+        description: 'post auth',
+        body: {
+          type: 'object',
+          properties: {
+            mobileNumber: { type: 'string' },
+            password: { type: 'string' }
+          },
+          required: ['mobileNumber', 'password']
+        },
+        // querystring:{//todo need this part?
+        //   type: 'object',
+        //   properties: {
+        //     mobileNumber: { type: 'string' }
+        //   },
+        //   required: ['mobileNumber']
+        // },
+        response: {
+          200: {
+            description: 'Successful response',
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              name: { type: 'string' },
+              token: { type: 'string' },
+            }
+          }
+        },
+        security: [
+          {
+            "apiKey": []
+          }
+        ]
       },
       handler: this.handleLogin
     }, {

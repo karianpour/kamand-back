@@ -6,6 +6,7 @@ import 'fastify-file-upload';
 
 import * as fastifyCors from 'fastify-cors';
 import * as fastifyJwt from 'fastify-jwt';
+import * as fastifySwagger from 'fastify-swagger';
 import * as fastifyFileUpload from 'fastify-file-upload';
 import { DataService } from './data-service';
 import { InternalServerError } from 'http-errors';
@@ -99,6 +100,34 @@ export class HttpServer {
         }
       }
     );
+
+
+    this.fastifyServer.register(fastifySwagger, {
+      routePrefix: '/documentation',
+      swagger: {
+        info: {
+          title: 'kamand Back',
+          description: 'fastify swagger api',
+          version: '0.1.0'
+        },
+        externalDocs: {
+          url: 'https://swagger.io',
+          description: 'Find more info here'
+        },securityDefinitions: {
+          BaseSecurity: {
+            type: 'apiKey',
+            name: 'Authorization',
+            in: 'header'
+          }
+        },
+        // host: host,
+        schemes: ['http'],
+        consumes: ['application/json'],
+        produces: ['application/json'],
+      },
+      exposeRoute: true
+    })
+
 
     this.fastifyServer.listen(this.port, this.host, (err, address)=>{
       if(err) throw err;
