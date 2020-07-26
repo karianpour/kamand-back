@@ -1,5 +1,4 @@
-import fastify, { FastifyInstance, JWTTypes, RawServerDefault } from 'fastify';
-import { Server, IncomingMessage, ServerResponse } from 'http';
+import fastify, { FastifyInstance, JWTTypes, FastifyPluginOptions } from 'fastify';
 import 'fastify-cors';
 import 'fastify-jwt';
 import 'fastify-file-upload';
@@ -26,6 +25,7 @@ export class HttpServer {
     private port: number,
     private logger: boolean,
     private origin: boolean,
+    private swaggerOptions?: FastifyPluginOptions,
   ){
   }
 
@@ -47,6 +47,35 @@ export class HttpServer {
       limits: { fileSize: 2 * 1024 * 1024 },
       abortOnLimit: true,
     });
+
+    this.fastifyServer.register(fastifySwagger, {
+      logLevel: 'fatal',
+      routePrefix: '/documentation',
+      swagger: {
+        info: {
+          title: 'kamand Back',
+          description: 'fastify swagger api',
+          version: '0.1.0'
+        },
+        externalDocs: {
+          url: 'https://swagger.io',
+          description: 'Find more info here'
+        },
+        securityDefinitions: {
+          BaseSecurity: {
+            type: 'apiKey',
+            name: 'Authorization',
+            in: 'header'
+          }
+        },
+        // host: host,
+        schemes: ['http'],
+        consumes: ['application/json'],
+        produces: ['application/json'],
+      },
+      exposeRoute: true,
+      ...this.swaggerOptions,
+    })
 
     this.fastifyServer.decorate("authenticate", async function(request, reply) {
       try {
@@ -102,36 +131,10 @@ export class HttpServer {
     );
 
 
-    this.fastifyServer.register(fastifySwagger, {
-      routePrefix: '/documentation',
-      swagger: {
-        info: {
-          title: 'kamand Back',
-          description: 'fastify swagger api',
-          version: '0.1.0'
-        },
-        externalDocs: {
-          url: 'https://swagger.io',
-          description: 'Find more info here'
-        },securityDefinitions: {
-          BaseSecurity: {
-            type: 'apiKey',
-            name: 'Authorization',
-            in: 'header'
-          }
-        },
-        // host: host,
-        schemes: ['http'],
-        consumes: ['application/json'],
-        produces: ['application/json'],
-      },
-      exposeRoute: true
-    })
-
-
     this.fastifyServer.listen(this.port, this.host, (err, address)=>{
       if(err) throw err;
       debug(`listen on ${address}`);
+      debug(`swagger documentation on ${address}/documentation`);
     });
   }
 
