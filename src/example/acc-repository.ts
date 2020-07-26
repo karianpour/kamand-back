@@ -104,6 +104,45 @@ class Acc implements Model {
       public: false,
       url: '/:id',
       schema: {
+        description: 'get acc',
+        tags: ['acc'],
+        summary: 'acc',
+        params: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+          },
+        },
+        // // querystring:{//todo need this part?
+        //   type: 'object',
+        //   properties: {
+        //     id: { type: 'string' },
+        //   },
+        //   required: ['id']
+        // },
+        // body: {
+        //   type: 'object',
+        //   properties: {
+        //     id: { type: 'string' },
+        //   },
+        //   required: ['id']
+        // },
+        response: {
+          200: {
+            description: 'Successful response',
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              name: { type: 'string' },
+              token: { type: 'string' },
+            }
+          }
+        },
+        security: [
+          {
+            "apiKey": []
+          }
+        ]
       },
       handler: this.handleFindById
     },{
