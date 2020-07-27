@@ -4,7 +4,7 @@ import { BadRequest, NotFound, Conflict } from 'http-errors';
 import * as sql from 'sql-bricks-postgres';
 import { createError } from "./value-validators";
 
-export async function uniqueField(client: PoolClient, tableName: string, idField: string | string[], uniqueField: string | string[], idValue: any | any[], uniqueFieldValue: any | any[], fieldTranslation: string, err?: any[]){
+export async function uniqueField(client: PoolClient, tableName: string, idField: string | string[], uniqueField: string | string[], idValue: any | any[], uniqueFieldValue: any | any[], fieldTranslation: string, err?: any[], condition?:any){
 
   let select = sql.select(idField);
   select = select.from(tableName);
@@ -34,6 +34,9 @@ export async function uniqueField(client: PoolClient, tableName: string, idField
     })
   }else{
     select = select.where(sql.eq(uniqueField, uniqueFieldValue));
+  }
+  if(condition){
+    select = select.where(condition);
   }
   select = select.limit('1');
 
