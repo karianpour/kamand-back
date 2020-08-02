@@ -1,7 +1,7 @@
-CREATE USER kamand WITH ENCRYPTED PASSWORD 'kamand';
+--CREATE USER kamand WITH ENCRYPTED PASSWORD 'kamand';
 
-create database kamand encoding = 'utf8' lc_collate = 'fa_IR.utf8' template template0;
-GRANT ALL PRIVILEGES ON DATABASE kamand TO kamand;
+--create database kamand encoding = 'utf8' lc_collate = 'fa_IR.utf8' template template0;
+--GRANT ALL PRIVILEGES ON DATABASE kamand TO kamand;
 
 -- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
