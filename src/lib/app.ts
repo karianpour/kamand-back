@@ -48,7 +48,7 @@ export class App{
             const normalizedPathR = path.join(normalizedPath, file);
             searchForRepositories(normalizedPathR);
           }
-          if(stat.isFile() && file.match(/-repository.[jt]s$/)){
+          if(stat.isFile() && file.match(/-repo(sitory|rt).[jt]s$/)){
             const relativePath = path.relative(__dirname, path.join(normalizedPath, file));
             repositories.push((relativePath.startsWith('.') ? '' : './') + relativePath.substring(0, relativePath.length - 3));
           }
