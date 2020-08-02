@@ -26,7 +26,6 @@ export class HttpServer {
     private logger: boolean,
     private origin: boolean,
     private swaggerOptions?: FastifyPluginOptions,
-    private noNetwork?:boolean
   ){
   }
 
@@ -130,14 +129,14 @@ export class HttpServer {
         }
       }
     );
+  }
 
-    if (!this.noNetwork) {
-      this.fastifyServer.listen(this.port, this.host, (err, address)=>{
-        if(err) throw err;
-        debug(`listen on ${address}`);
-        debug(`swagger documentation on ${address}/documentation`);
-      });
-    }
+  listenNetwork(){
+    this.fastifyServer.listen(this.port, this.host, (err, address)=>{
+      if(err) throw err;
+      debug(`listen on ${address}`);
+      debug(`swagger documentation on ${address}/documentation`);
+    });
   }
 
   async stop() {

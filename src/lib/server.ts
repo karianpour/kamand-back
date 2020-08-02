@@ -10,7 +10,6 @@ export class Server {
   private dataService: DataService;
   private httpServer: HttpServer;
   private webSocketService: WebSocketService;
-  private noNetwork: boolean;
 
   async run(
     host: string = '0.0.0.0',
@@ -19,17 +18,21 @@ export class Server {
     origin: boolean = true,
     socketHost: string = '0.0.0.0',
     socketPort: number = 8040,
-    noNetwork: boolean = false,
   ) {
     debug('starting services');
     this.dataService = new DataService();
     await this.dataService.connect();
 
-    this.httpServer = new HttpServer(this.dataService, host, port, logger, origin, undefined, noNetwork);
+    this.httpServer = new HttpServer(this.dataService, host, port, logger, origin, undefined);
     this.httpServer.start();
 
-    this.webSocketService = new WebSocketService(this, socketHost, socketPort, noNetwork);
+    this.webSocketService = new WebSocketService(this, socketHost, socketPort);
     this.webSocketService.start();
+  }
+
+  listenNetwork(){
+    this.httpServer.listenNetwork();
+    this.webSocketService.listenNetwork();
   }
 
   getDataService(): DataService {

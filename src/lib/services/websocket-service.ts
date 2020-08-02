@@ -32,7 +32,6 @@ export class WebSocketService {
     private server: KamandServer,
     private host: string,
     private port: number,
-    private noNetwork: boolean,
   ) {
     this.options = {
       path: '/kamand-io',
@@ -100,9 +99,9 @@ export class WebSocketService {
   }
 
   async start() {
-    if (this.noNetwork) {
-      return;
-    }
+  }
+
+  listenNetwork(){
     debug(`websocket starting ${this.host} ${this.port}`);
     this.httpServer.listen(this.port, this.host);
     this.io.attach(this.httpServer, this.options);

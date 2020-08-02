@@ -5,10 +5,10 @@ import * as supertest from 'supertest';
 const ACC_ID1 = 123;
 
 tap.test('acc-repository server', async t => {
-  const server = await setup();
-  const fastify = server.getHttpServer().getFastifyServer();
-  t.tearDown(() => {
-    server.stop()
+  const app = await setup();
+  const fastify = app.server.getHttpServer().getFastifyServer();
+  t.tearDown(async () => {
+    await app.stop()
   })
 
   await fastify.ready();

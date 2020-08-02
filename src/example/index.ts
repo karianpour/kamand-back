@@ -1,19 +1,9 @@
-import {app} from './app';
-function main (){
-  app();
+import {App} from './app';
+
+async function main (){
+  const app = new App();
+  await app.init();
+  app.listenNetwork();
 }
-
-process.on('SIGINT', async function() {
-  debug('stopping');
-  try{
-    await server.stop();
-    process.exit(0);
-  }catch(err){
-    console.error(err);
-    process.exit(1);
-  }
-});
-
-debug(`starting...`);
 
 main();

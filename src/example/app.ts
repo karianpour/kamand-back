@@ -13,37 +13,58 @@ import { models as fileModels } from './file-repository';
 import { listener as jobEvent } from './job-repository';
 import { listener as longTaskEvent } from './long-task-repository';
 
-let server: Server;
 let debug = Debug('kamand-example');
 
-export async function app({noNetwork}:{noNetwork?: boolean}){
-  server = new Server();
+export class App{
+  public server: Server;
+  
+  async init(){
+    this.server = new Server();
 
-  await server.run(
-    process.env.SERVER_HOST || '0.0.0.0',
-    parseInt(process.env.SERVER_PORT || '8050'),
-    false,
-    true,
-    process.env.WEBSOCKET_HOST || '0.0.0.0',
-    parseInt(process.env.WEBSOCKET_PORT || '8040'),
-    noNetwork
-  );
+    process.on('SIGINT', async () => {
+      this.stop();
+    });
+    
+    debug(`starting...`);
 
-  // server.registerQueryBuilder(queries);
-  // server.registerModel(models);
+    await this.server.run(
+      process.env.SERVER_HOST || '0.0.0.0',
+      parseInt(process.env.SERVER_PORT || '8050'),
+      false,
+      true,
+      process.env.WEBSOCKET_HOST || '0.0.0.0',
+      parseInt(process.env.WEBSOCKET_PORT || '8040'),
+    );
 
-  server.registerModel(authModels);
+    // this.server.registerQueryBuilder(queries);
+    // this.server.registerModel(models);
 
-  server.registerQueryBuilder(accQueries);
-  server.registerModel(accModels);
+    this.server.registerModel(authModels);
 
-  server.registerQueryBuilder(voucherQueries);
-  server.registerModel(voucherModels);
+    this.server.registerQueryBuilder(accQueries);
+    this.server.registerModel(accModels);
 
-  server.registerModel(fileModels);
+    this.server.registerQueryBuilder(voucherQueries);
+    this.server.registerModel(voucherModels);
 
-  server.regsiterEventListener(jobEvent);
-  server.regsiterEventListener(longTaskEvent);
-  return server;
+    this.server.registerModel(fileModels);
+
+    this.server.regsiterEventListener(jobEvent);
+    this.server.regsiterEventListener(longTaskEvent);
+  }
+
+  async stop(){
+    debug('stopping');
+    try{
+      await this.server.stop();
+      process.exit(0);
+    }catch(err){
+      console.error(err);
+      process.exit(1);
+    }
+  }
+
+  listenNetwork(){
+    this.server.listenNetwork();
+  }
 }
-
