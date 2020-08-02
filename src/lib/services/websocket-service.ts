@@ -32,11 +32,13 @@ export class WebSocketService {
     private server: KamandServer,
     private host: string,
     private port: number,
+    options?: ServerOptions,
   ) {
     this.options = {
       path: '/kamand-io',
       serveClient: false,
       cookie: false,
+      ...options,
     };
     this.io = SocketIOServer(this.options);
     this.httpServer = http.createServer();

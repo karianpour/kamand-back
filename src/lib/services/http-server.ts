@@ -1,4 +1,4 @@
-import fastify, { FastifyInstance, JWTTypes, FastifyPluginOptions } from 'fastify';
+import fastify, { FastifyInstance, JWTTypes, FastifyPluginOptions, FastifyServerOptions } from 'fastify';
 import 'fastify-cors';
 import 'fastify-jwt';
 import 'fastify-file-upload';
@@ -23,29 +23,37 @@ export class HttpServer {
     private dataService: DataService,
     private host: string,
     private port: number,
-    private logger: boolean,
-    private origin: boolean,
-    private swaggerOptions?: FastifyPluginOptions,
+    private options: {
+      fastify?: FastifyServerOptions,
+      jwt?: FastifyPluginOptions,
+      cors?: FastifyPluginOptions,
+      fileUpload?: FastifyPluginOptions,
+      swagger?: FastifyPluginOptions,
+    } = {}
   ){
   }
 
   start(){
     this.fastifyServer = fastify({
       bodyLimit: 100 * 1024,
-      logger: this.logger,
+      logger: true,
+      ...this.options.fastify,
     });
 
     this.fastifyServer.register(fastifyCors as any, { 
-      origin: this.origin,
+      origin: true,
+      ...this.options.cors,
     });
 
     this.fastifyServer.register(fastifyJwt, {
       secret: process.env.JWT_SECRET_KEY,
+      ...this.options.jwt,
     });
 
     this.fastifyServer.register(fastifyFileUpload, {
       limits: { fileSize: 2 * 1024 * 1024 },
       abortOnLimit: true,
+      ...this.options.fileUpload,
     });
 
     this.fastifyServer.register(fastifySwagger, {
@@ -74,7 +82,7 @@ export class HttpServer {
         produces: ['application/json'],
       },
       exposeRoute: true,
-      ...this.swaggerOptions,
+      ...this.options.swagger,
     })
 
     this.fastifyServer.decorate("authenticate", async function(request, reply) {

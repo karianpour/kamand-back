@@ -1,4 +1,4 @@
-import { QueryBuilder } from "../lib/index";
+import { QueryBuilder } from "../../lib/index";
 
 const publicQuery:QueryBuilder = {
   query: 'publicQuery',

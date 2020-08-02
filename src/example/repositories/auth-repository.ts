@@ -1,8 +1,8 @@
-import { Model, Server, QueryBuilder } from "../lib/index";
+import { Model, Server, QueryBuilder } from "../../lib/index";
 import { PoolClient } from "pg";
 import { HTTPMethods } from "fastify";
-import { pause } from '../lib/utils/generalUtils';
-import { throwError } from '../lib/services/value-validators';
+import { pause } from '../../lib/utils/generalUtils';
+import { throwError } from '../../lib/services/value-validators';
 import * as Debug from 'debug';
 
 let debug = Debug('kamand');

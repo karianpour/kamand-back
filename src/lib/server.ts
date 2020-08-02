@@ -3,6 +3,8 @@ import {DataService} from './services/data-service';
 import {WebSocketService} from './services/websocket-service';
 import {Model, QueryBuilder, EventListener} from './services/interfaces';
 import * as Debug from 'debug';
+import { FastifyServerOptions, FastifyPluginOptions } from 'fastify';
+import { ServerOptions as SocketIOServerOptions } from 'socket.io';
 
 let debug = Debug('kamand');
 
@@ -14,19 +16,25 @@ export class Server {
   async run(
     host: string = '0.0.0.0',
     port: number = 8050,
-    logger: boolean = true,
-    origin: boolean = true,
     socketHost: string = '0.0.0.0',
     socketPort: number = 8040,
+    fastifyOptions: {
+      fastify?: FastifyServerOptions,
+      jwt?: FastifyPluginOptions,
+      cors?: FastifyPluginOptions,
+      fileUpload?: FastifyPluginOptions,
+      swagger?: FastifyPluginOptions,
+    } = {},
+    socketOptions: SocketIOServerOptions = {},
   ) {
     debug('starting services');
     this.dataService = new DataService();
     await this.dataService.connect();
 
-    this.httpServer = new HttpServer(this.dataService, host, port, logger, origin, undefined);
+    this.httpServer = new HttpServer(this.dataService, host, port, fastifyOptions);
     this.httpServer.start();
 
-    this.webSocketService = new WebSocketService(this, socketHost, socketPort);
+    this.webSocketService = new WebSocketService(this, socketHost, socketPort, socketOptions);
     this.webSocketService.start();
   }
 
