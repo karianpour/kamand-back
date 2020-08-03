@@ -7,7 +7,7 @@ async function main (){
   const app = new App();
   await app.init(__dirname, {
     fastify: {
-      logger: false,
+      logger: true,
     }
   });
   app.listenNetwork();

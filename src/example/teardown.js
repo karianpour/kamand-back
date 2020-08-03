@@ -9,7 +9,7 @@ try {
         for (const line of lines) {
             if (line.indexOf("pid=") !== -1) {
                 const pid = line.split('=')[1];
-                console.log("killing the process with pid:", pid);
+                console.log("Killing the Server with pid:", pid);
                 process.kill(pid);
                 fs.unlinkSync(test_data_path);
             }
