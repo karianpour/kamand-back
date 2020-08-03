@@ -45,5 +45,5 @@ node  --require=ts-node/register src/test/example/kamand.test.ts
 ```
 
 
-#DB Migrations
+# DB Migrations
 we can use postgres-migrations for database migration
