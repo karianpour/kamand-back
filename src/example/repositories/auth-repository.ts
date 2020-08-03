@@ -88,6 +88,7 @@ class Auth implements Model {
     if(result){
       result.token = this.server.getHttpServer().sign({ id: result.id, roles: ['admin'] });
       reply.send(result);
+      return;
     }
     await pause(500);//this pause is to make the life of hacker harder for brute-force attack
     throwError('mobileNumber', 'mismatch', 'mobileNumber mismatch!', 'auth.mobileNumber');

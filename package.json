@@ -22,7 +22,7 @@
     "start-ts": "ts-node src/example/index.ts",
     "build-dev": "rm -rf ./dev && tsc",
     "start-old": "rm -rf ./dev && tsc --watch & nodemon dev/example/index.js",
-    "test": "TS_NODE_FILES=true tap  --no-ts --node-arg=--require=ts-node/register"
+    "test": "TS_NODE_FILES=true tap  --bail --no-ts --node-arg=--require=ts-node/register --before=src/example/setup.js --after=src/example/teardown.js"
   },
   "nodemonConfig": {
     "ignore": [
@@ -50,6 +50,7 @@
     "@types/pg-format": "^1.0.0",
     "@types/socket.io": "^2.1.8",
     "@types/uuid": "^8.0.0",
+    "axios": "^0.19.2",
     "nodemon": "^2.0.4",
     "supertest": "^4.0.2",
     "tap": "^14.10.8",
