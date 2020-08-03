@@ -45,5 +45,10 @@ node  --require=ts-node/register src/test/example/kamand.test.ts
 ```
 
 
+### Configuring tests when using kamand as a dependency
+1. Create files `src/setup.js`, `src/teardown.js` using the example
+2. Add `test` in the scripts section in the `package.json` file.
+3. Add tests in the `test` folder using the example test.
+
 # DB Migrations
 we can use postgres-migrations for database migration
