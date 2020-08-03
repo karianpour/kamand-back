@@ -1,6 +1,6 @@
 {
   "name": "kamand-back",
-  "version": "3.0.49",
+  "version": "4.0.50",
   "description": "Kamand back end",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
