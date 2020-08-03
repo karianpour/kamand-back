@@ -2,23 +2,14 @@ const {spawn} = require('child_process');
 const fs = require('fs');
 
 try {
-  console.log('before spawn');
-  const child = spawn('node', ['-r', 'ts-node/register', 'src/example/index.ts'],
+  const child = spawn('node', ['-r', 'ts-node/register', 'src/example/index.ts', '--test'],
     {
       env: {...process.env, TS_NODE_FILES: "1"},
-      cwd: "/home/pouria/code/zarin/kamand-back",
+      cwd: process.cwd(),
       detached: true
     });
 
   child.stdout.setEncoding('utf8');
-
-
-  console.log('before stdout check', child.pid);
-  fs.writeFileSync('.nyc_output/test_data.info', `pid=${child.pid}`, (err)=>{
-    if (err){
-      console.log("error happened in test setup pid", err);
-    }
-  });
 
   child.stdout.on('data', (data) => {
     console.log(`stdout: ${data}`);
@@ -38,6 +29,12 @@ try {
     console.log(`child process exited with code ${code}`);
   });
 
+  console.log('before stdout check', child.pid);
+  fs.writeFileSync('.nyc_output/test_data.info', `pid=${child.pid}`, (err)=>{
+    if (err){
+      console.log("error happened in test setup pid", err);
+    }
+  });
 } catch (e) {
   console.log("spawn error", e);
 }

@@ -1,5 +1,9 @@
 import { config as readEnv } from 'dotenv';
-readEnv();
+const testEnv = process.argv.findIndex( a => a === '--test') !== -1;
+testEnv && (process.env.testEnv = 'true');
+readEnv({
+  path: testEnv ? '.env.test' : '.env',
+});
 
 import {App} from '../lib/app';
 

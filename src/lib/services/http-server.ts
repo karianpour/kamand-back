@@ -1,4 +1,4 @@
-import fastify, { FastifyInstance, JWTTypes, FastifyPluginOptions, FastifyServerOptions } from 'fastify';
+import fastify, { FastifyInstance, FastifyPluginOptions, FastifyServerOptions } from 'fastify';
 import 'fastify-cors';
 import 'fastify-jwt';
 import 'fastify-file-upload';
@@ -144,6 +144,9 @@ export class HttpServer {
       if(err) throw err;
       debug(`listen on ${address}`);
       debug(`swagger documentation on ${address}/documentation`);
+      if(process.env.testEnv === 'true'){
+        console.log('Server listening at');
+      }
     });
   }
 
@@ -152,11 +155,11 @@ export class HttpServer {
     await this.fastifyServer.close();
   }
 
-  sign(payload: JWTTypes.SignPayloadType, options?: SignOptions): string{
+  sign(payload: object, options?: SignOptions): string{
     return this.fastifyServer.jwt.sign(payload, options);
   }
 
-  verify(token: string, options?: VerifyOptions): JWTTypes.VerifyPayloadType{
+  verify(token: string, options?: VerifyOptions): object{
     return this.fastifyServer.jwt.verify(token, options);
   }
 
