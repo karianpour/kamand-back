@@ -25,9 +25,10 @@ class Auth implements Model {
           type: 'object',
           properties: {
             mobileNumber: { type: 'string' },
+            username: { type: 'string' },
             password: { type: 'string' }
           },
-          required: ['mobileNumber', 'password']
+          required: ['password']
         },
         // querystring:{//todo need this part?
         //   type: 'object',
