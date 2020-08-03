@@ -23,7 +23,9 @@ npm publish
 All tests are located inside the `src/test` folder.
 
 ## To run all tests: 
-```npm test```
+```
+npm test
+```
 
 The file `src/example/setup.js` runs before the tests,
 it starts the server and initializes the db
