@@ -29,6 +29,8 @@ The file `src/example/setup.js` runs before the tests,
 it starts the server and initializes the db
 and `src/example/teardown.js` is run after for teardown.
 
+if `src/example/teardown.js` somehow does not run, you'll have to kill the dev server `node` process manually.
+
 ### To work on a single test file:
 
 First run the development server:
