@@ -12,14 +12,14 @@ try {
   child.stdout.setEncoding('utf8');
 
   child.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`);
+    console.log(`${data}`);
     if (data.indexOf('Server listening at') !== -1) {
       process.exit(0);
     }
   });
 
   child.stderr.on('data', (data) => {
-    console.log(`stderr: ${data}`);
+    console.log(`${data}`);
     if (data.indexOf('kamand listen on') !== -1) {
       process.exit(0);
     }
