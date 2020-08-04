@@ -7,7 +7,8 @@ try {
     fs.accessSync('.env.test');
     readEnv({path: '.env.test'});
 } catch (e) {
-    console.log(`Tests need the .env.test file.`)
+    console.log(`Tests need the .env.test file.`,e);
+    process.exit(1);
 }
 
 const DB_SAMPLE = 'src/example/db/database.sql';
@@ -35,6 +36,7 @@ async function initDb() {
         await runDB(sql);
     } catch (e) {
         console.log("error in init-db", e);
+        process.exit(1);
     }
 }
 

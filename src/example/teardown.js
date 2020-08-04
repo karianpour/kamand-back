@@ -9,6 +9,7 @@ try {
     readEnv({path: '.env.test'});
 } catch (e) {
     console.log(`Tests need the .env.test file.`, e);
+    process.exit(1);
 }
 
 const DB_DATABASE = process.env.DB_DATABASE;
