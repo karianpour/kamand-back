@@ -80,5 +80,19 @@ tap.test("Test Acc-Repository", async t => {
     }
   });
 
+  t.test('Get an Acc from sample data', async t => {
+    try {
+      const response = await axios.request({
+        url: `/acc/937c662e-0f07-4a91-a407-bae9e98639f1`,
+        method: "get",
+        headers: {'Authorization': `Bearer ${token}`},
+      });
+      t.equal(response.status, 200);
+      t.same(response.data, {id: '937c662e-0f07-4a91-a407-bae9e98639f1', name: 'دارایی'});
+    } catch (e) {
+      t.fail(`${e.message} ${e?.response?.data?.message || ""}`);
+    }
+  });
+
 });
 
