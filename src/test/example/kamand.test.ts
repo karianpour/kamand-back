@@ -4,9 +4,9 @@ import {config as readEnv} from 'dotenv';
 import axios from 'axios';
 
 readEnv({path: '.env.test'});
-const SERVER_HOST = process.env.SERVER_HOST;
-const SERVER_PORT = process.env.SERVER_PORT;
-const SERVER_ADDRESS = `http://${SERVER_HOST}:${SERVER_PORT}`;
+// const SERVER_HOST = process.env.SERVER_HOST;
+const SERVER_PORT = process.env.SERVER_PORT || 8050;
+const SERVER_ADDRESS = `http://127.0.0.1:${SERVER_PORT}`;
 axios.defaults.baseURL = `${SERVER_ADDRESS}`;
 axios.defaults.validateStatus = () => {
   return true;

@@ -14,30 +14,43 @@ try {
 const DB_SAMPLE = 'src/example/db/database.sql';
 const DB_DATABASE = process.env.DB_DATABASE;
 
-async function runDB(query, initialDB = false) {
-    if (initialDB && !process.env.DB_INITIAL_DB) {
-        throw ("Need DB_INITIAL_DB to create test database");
-    }
-    const client = new Client({
-        user: process.env.DB_USER,
-        host: process.env.DB_HOST,
-        database: initialDB ? process.env.DB_INITIAL_DB : process.env.DB_DATABASE,
-        password: process.env.DB_PASS,
-        port: process.env.DB_PORT
-    });
-    await client.connect();
-    await client.query(query);
-    await client.end();
-}
-
 async function initDb() {
     try {
-        await runDB(`drop database if exists ${DB_DATABASE}`, true);
-        await runDB(`create database ${DB_DATABASE} encoding = 'utf8' 
-        lc_collate = 'fa_IR.utf8' template template0`, true);
-        await runDB('create extension if not exists pgcrypto;');
-        const sql = fs.readFileSync(DB_SAMPLE).toString();
-        await runDB(sql);
+        {
+
+            const client = new Client({
+                user: process.env.DB_USER,
+                host: process.env.DB_HOST,
+                // database: process.env.DB_DATABASE,
+                password: process.env.DB_PASS,
+                port: process.env.DB_PORT
+            });
+            await client.connect();
+    
+            await client.query(`drop database if exists ${DB_DATABASE}`);
+    
+            await client.query(`create database ${DB_DATABASE} encoding = 'utf8' 
+                                    lc_collate = 'fa_IR.utf8' template template0`);
+            await client.query('create extension if not exists pgcrypto;');
+
+            await client.end();
+        }
+
+        {
+            const client = new Client({
+                user: process.env.DB_USER,
+                host: process.env.DB_HOST,
+                database: process.env.DB_DATABASE,
+                password: process.env.DB_PASS,
+                port: process.env.DB_PORT
+            });
+            await client.connect();
+    
+            const sql = fs.readFileSync(DB_SAMPLE).toString();
+            await client.query(sql);
+    
+            await client.end();
+        }
     } catch (e) {
         console.log("error in init-db", e);
         process.exit(1);

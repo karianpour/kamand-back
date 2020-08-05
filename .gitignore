@@ -6,3 +6,4 @@
 /dev
 /.idea
 .nyc_output
+/coverage
