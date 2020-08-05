@@ -35,6 +35,7 @@ async function initDb() {
         await runDB(`drop database if exists ${DB_DATABASE}`, true);
         await runDB(`create database ${DB_DATABASE} encoding = 'utf8' 
         lc_collate = 'fa_IR.utf8' template template0`, true);
+        await runDB('create extension if not exists pgcrypto;');
         const sql = fs.readFileSync(DB_SAMPLE).toString();
         await runDB(sql);
     } catch (e) {
