@@ -8,7 +8,9 @@ const SERVER_HOST = process.env.SERVER_HOST;
 const SERVER_PORT = process.env.SERVER_PORT;
 const SERVER_ADDRESS = `http://${SERVER_HOST}:${SERVER_PORT}`;
 axios.defaults.baseURL = `${SERVER_ADDRESS}`;
-
+axios.defaults.validateStatus = () => {
+  return true;
+};
 
 const code = Math.floor(Math.random() * 10000) + 1;
 const TEST_DATA = {
@@ -31,67 +33,50 @@ const TEST_DATA = {
 tap.test("Test Acc-Repository", async t => {
   let token;
   t.test('User can login', async t => {
-    try {
-      const response = await axios.request({
-        url: `/users/login`,
-        method: "post",
-        data: TEST_DATA.auth,
-      });
-      t.equal(response.status, 200);
-      token = response.data.token;
-      if (!token) {
-        t.fail("no token")
-      }
-    } catch (e) {
-      t.fail(`${e.message} ${e?.response?.data?.message || ""}`);
+    const response = await axios.request({
+      url: `/users/login`,
+      method: "post",
+      data: TEST_DATA.auth,
+    });
+    t.equal(response.status, 200);
+    token = response.data.token;
+    if (!token) {
+      t.fail("no token")
     }
   });
 
 
   t.test('Create an Acc', async t => {
-    try {
-      const response = await axios.request({
-        url: `/acc/${TEST_DATA.acc.id}`,
-        method: "post",
-        headers: {'Authorization': `Bearer ${token}`},
-        data: TEST_DATA.acc,
-      });
-      response.data.createdAt = new Date(response.data.createdAt);
-      t.same(response.data, TEST_DATA.acc);
-      t.equal(response.status, 200);
-    } catch (e) {
-      t.fail(`${e.message} ${e?.response?.data?.message || ""}`);
-    }
+    const response = await axios.request({
+      url: `/acc/${TEST_DATA.acc.id}`,
+      method: "post",
+      headers: {'Authorization': `Bearer ${token}`},
+      data: TEST_DATA.acc,
+    });
+    response.data.createdAt = new Date(response.data.createdAt);
+    t.same(response.data, TEST_DATA.acc);
+    t.equal(response.status, 200);
   });
 
 
   t.test('Get an Acc', async t => {
-    try {
-      const response = await axios.request({
-        url: `/acc/${TEST_DATA.acc.id}`,
-        method: "get",
-        headers: {'Authorization': `Bearer ${token}`},
-      });
-      t.equal(response.status, 200);
-      t.same(response.data, {id: TEST_DATA.acc.id, name: TEST_DATA.acc.name});
-    } catch (e) {
-      t.fail(`${e.message} ${e?.response?.data?.message || ""}`);
-    }
+    const response = await axios.request({
+      url: `/acc/${TEST_DATA.acc.id}`,
+      method: "get",
+      headers: {'Authorization': `Bearer ${token}`},
+    });
+    t.equal(response.status, 200);
+    t.same(response.data, {id: TEST_DATA.acc.id, name: TEST_DATA.acc.name});
   });
 
   t.test('Get an Acc from sample data', async t => {
-    try {
-      const response = await axios.request({
-        url: `/acc/937c662e-0f07-4a91-a407-bae9e98639f1`,
-        method: "get",
-        headers: {'Authorization': `Bearer ${token}`},
-      });
-      t.equal(response.status, 200);
-      t.same(response.data, {id: '937c662e-0f07-4a91-a407-bae9e98639f1', name: 'دارایی'});
-    } catch (e) {
-      t.fail(`${e.message} ${e?.response?.data?.message || ""}`);
-    }
+    const response = await axios.request({
+      url: `/acc/937c662e-0f07-4a91-a407-bae9e98639f1`,
+      method: "get",
+      headers: {'Authorization': `Bearer ${token}`},
+    });
+    t.equal(response.status, 200);
+    t.same(response.data, {id: '937c662e-0f07-4a91-a407-bae9e98639f1', name: 'دارایی'});
   });
-
 });
 
