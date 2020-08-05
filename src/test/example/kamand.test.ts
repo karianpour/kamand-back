@@ -3,7 +3,7 @@ import {v4 as uuidv4} from 'uuid';
 import {config as readEnv} from 'dotenv';
 import axios from 'axios';
 
-readEnv();
+readEnv({path: '.env.test'});
 const SERVER_HOST = process.env.SERVER_HOST;
 const SERVER_PORT = process.env.SERVER_PORT;
 const SERVER_ADDRESS = `http://${SERVER_HOST}:${SERVER_PORT}`;
