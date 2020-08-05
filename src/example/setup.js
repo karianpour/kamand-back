@@ -15,6 +15,9 @@ const DB_SAMPLE = 'src/example/db/database.sql';
 const DB_DATABASE = process.env.DB_DATABASE;
 
 async function runDB(query, initialDB = false) {
+    if (initialDB && !process.env.DB_INITIAL_DB) {
+        throw ("Need DB_INITIAL_DB to create test database");
+    }
     const client = new Client({
         user: process.env.DB_USER,
         host: process.env.DB_HOST,
