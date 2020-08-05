@@ -56,8 +56,7 @@ tap.test("Test Acc-Repository", async t => {
         headers: {'Authorization': `Bearer ${token}`},
         data: TEST_DATA.acc,
       });
-      delete response.data.createdAt;
-      delete TEST_DATA.acc.createdAt;
+      response.data.createdAt = new Date(response.data.createdAt);
       t.same(response.data, TEST_DATA.acc);
       t.equal(response.status, 200);
     } catch (e) {
