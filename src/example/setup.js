@@ -55,14 +55,14 @@ function setupServer() {
         child.stdout.setEncoding('utf8');
 
         child.stdout.on('data', (data) => {
-            console.log(`${data}`);
+            console.log(`${data}`.trim());
             if (data.indexOf('Server listening at') !== -1) {
                 process.exit(0);
             }
         });
 
         child.stderr.on('data', (data) => {
-            console.log(`${data}`);
+            console.log(`${data}`.trim());
             if (data.indexOf('kamand listen on') !== -1) {
                 process.exit(0);
             }
