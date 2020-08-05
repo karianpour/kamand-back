@@ -38,7 +38,7 @@ tap.test("Test Acc-Repository", async t => {
       method: "post",
       data: TEST_DATA.auth,
     });
-    t.equal(response.status, 200);
+    t.equal(response.status, 200, "respone ok");
     token = response.data.token;
     if (!token) {
       t.fail("no token")
@@ -54,8 +54,8 @@ tap.test("Test Acc-Repository", async t => {
       data: TEST_DATA.acc,
     });
     response.data.createdAt = new Date(response.data.createdAt);
-    t.same(response.data, TEST_DATA.acc);
-    t.equal(response.status, 200);
+    t.same(response.data, TEST_DATA.acc, "response Same Acc");
+    t.equal(response.status, 200, "respone ok");
   });
 
 
@@ -65,8 +65,8 @@ tap.test("Test Acc-Repository", async t => {
       method: "get",
       headers: {'Authorization': `Bearer ${token}`},
     });
-    t.equal(response.status, 200);
-    t.same(response.data, {id: TEST_DATA.acc.id, name: TEST_DATA.acc.name});
+    t.equal(response.status, 200, "response ok");
+    t.same(response.data, {id: TEST_DATA.acc.id, name: TEST_DATA.acc.name}, "response Same Acc");
   });
 
   t.test('Get an Acc from sample data', async t => {
@@ -75,7 +75,7 @@ tap.test("Test Acc-Repository", async t => {
       method: "get",
       headers: {'Authorization': `Bearer ${token}`},
     });
-    t.equal(response.status, 200);
+    t.equal(response.status, 200, "response ok");
     t.same(response.data, {id: '937c662e-0f07-4a91-a407-bae9e98639f1', name: 'دارایی'});
   });
 });
