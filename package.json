@@ -22,7 +22,8 @@
     "start-ts": "ts-node src/example/index.ts",
     "build-dev": "rm -rf ./dev && tsc",
     "start-old": "rm -rf ./dev && tsc --watch & nodemon dev/example/index.js",
-    "test": "TS_NODE_FILES=true tap  --bail --no-ts --node-arg=--require=ts-node/register --before=src/example/setup.js --after=src/example/teardown.js"
+    "test": "TS_NODE_FILES=true tap  --bail --no-ts --node-arg=--require=ts-node/register --before=src/example/setup.js --after=src/example/teardown.js",
+    "coverage": "TS_NODE_FILES=true tap  --bail --no-ts --node-arg=--require=ts-node/register --before=src/example/setup.js --after=src/example/teardown.js --coverage-report=lcov"
   },
   "nodemonConfig": {
     "ignore": [
