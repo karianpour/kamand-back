@@ -5,7 +5,7 @@ import 'fastify-file-upload';
 
 import * as fastifyCors from 'fastify-cors';
 import * as fastifyJwt from 'fastify-jwt';
-import * as fastifySwagger from 'fastify-swagger';
+import fastifySwagger from 'fastify-swagger';
 import * as fastifyFileUpload from 'fastify-file-upload';
 import { DataService } from './data-service';
 import { InternalServerError } from 'http-errors';

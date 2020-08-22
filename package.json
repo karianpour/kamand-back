@@ -1,6 +1,6 @@
 {
   "name": "kamand-back",
-  "version": "4.0.50",
+  "version": "4.0.51",
   "description": "Kamand back end",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -46,32 +46,32 @@
   "devDependencies": {
     "@types/debug": "^4.1.5",
     "@types/http-errors": "^1.8.0",
-    "@types/node": "^12.12.53",
+    "@types/node": "^12.12.54",
     "@types/pg": "^7.14.4",
     "@types/pg-format": "^1.0.0",
-    "@types/socket.io": "^2.1.8",
-    "@types/uuid": "^8.0.0",
-    "axios": "^0.19.2",
+    "@types/socket.io": "^2.1.11",
+    "@types/uuid": "^8.3.0",
+    "axios": "^0.20.0",
     "nodemon": "^2.0.4",
     "supertest": "^4.0.2",
     "tap": "^14.10.8",
-    "ts-node": "^8.10.2",
-    "typescript": "^3.9.7"
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.2"
   },
   "dependencies": {
     "change-case": "^4.1.1",
     "debug": "^4.1.0",
     "dotenv": "^8.2.0",
-    "fastify": "^3.1.1",
+    "fastify": "^3.2.1",
     "fastify-cors": "^4.1.0",
     "fastify-file-upload": "^3.0.0",
-    "fastify-jwt": "^2.1.2",
-    "fastify-plugin": "^2.0.2",
-    "fastify-swagger": "^3.1.2",
-    "pg": "^8.3.0",
+    "fastify-jwt": "^2.1.3",
+    "fastify-plugin": "^2.3.2",
+    "fastify-swagger": "^3.3.0",
+    "pg": "^8.3.2",
     "pg-format": "^1.0.4",
     "socket.io": "^2.3.0",
     "sql-bricks-postgres": "^0.5.0",
-    "uuid": "^8.2.0"
+    "uuid": "^8.3.0"
   }
 }
