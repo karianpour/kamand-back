@@ -1,14 +1,14 @@
-import { Model, Server, QueryBuilder, EventListener } from "../lib/index";
+import { Model, Server, QueryBuilder, EventListener } from "../../lib/index";
 import { PoolClient } from "pg";
 import { HTTPMethods } from "fastify";
-import { uniqueField } from '../lib/services/data-validators';
-import { hasRole } from '../lib/services/auth-functions';
+import { uniqueField } from '../../lib/services/data-validators';
+import { hasRole } from '../../lib/services/auth-functions';
 import { BadRequest, Conflict, ExpectationFailed, Unauthorized } from 'http-errors';
-import { throwError, isValidNationalID, isValidMobileFormat, isValidPersianAlphabetFormat } from '../lib/services/value-validators';
+import { throwError, isValidNationalID, isValidMobileFormat, isValidPersianAlphabetFormat } from '../../lib/services/value-validators';
 import * as sql from 'sql-bricks-postgres';
 import * as Debug from 'debug';
-import { KamandSocket } from "../lib/services/websocket-service";
-import { sleep } from "../lib/utils/generalUtils";
+import { KamandSocket } from "../../lib/services/websocket-service";
+import { sleep } from "../../lib/utils/generalUtils";
 
 let debug = Debug('kamand-job');
 

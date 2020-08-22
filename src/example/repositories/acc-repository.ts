@@ -1,10 +1,10 @@
-import { Model, Server, QueryBuilder } from "../lib/index";
+import { Model, Server, QueryBuilder } from "../../lib/index";
 import { PoolClient } from "pg";
 import { HTTPMethods } from "fastify";
-import { uniqueField } from '../lib/services/data-validators';
-import { hasRole } from '../lib/services/auth-functions';
+import { uniqueField } from '../../lib/services/data-validators';
+import { hasRole } from '../../lib/services/auth-functions';
 import { BadRequest, Conflict, ExpectationFailed, Unauthorized } from 'http-errors';
-import { throwError, isValidNationalID, isValidMobileFormat, isValidPersianAlphabetFormat } from '../lib/services/value-validators';
+import { throwError, isValidNationalID, isValidMobileFormat, isValidPersianAlphabetFormat } from '../../lib/services/value-validators';
 import * as sql from 'sql-bricks-postgres';
 import * as Debug from 'debug';
 
@@ -147,7 +147,7 @@ class Acc implements Model {
       handler: this.handleFindById
     },{
       method: 'POST' as HTTPMethods,
-      public: true,
+      public: false,
       url: '/:id',
       schema: {
       },
@@ -177,7 +177,7 @@ class Acc implements Model {
         act: this.actFindById,
       },{
         address: () => '/create',
-        public: true,
+        public: false,
         act: this.actCreate,
       },{
         address: () => '/update',

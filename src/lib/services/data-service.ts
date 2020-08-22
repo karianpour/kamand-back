@@ -136,8 +136,12 @@ export class DataService {
 
   async stop(){
     debug('stopping data service');
-    await this.dataPool?.end();
-    await this.notificationClient?.end();
+    try{
+      await this.dataPool?.end()
+      await this.notificationClient?.end()
+    } catch (e) {
+      debug("error in stopping", e);
+    }
   }
 
   registerModelActions(models: Actionable[]): void{

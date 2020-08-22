@@ -1,58 +1,20 @@
 import { config as readEnv } from 'dotenv';
-readEnv();
-
-import * as Debug from 'debug';
-import { Server } from '../lib/index';
-
-// import { queries } from './query';
-// import models from './model';
-import { models as authModels } from './auth-repository';
-import { queries as accQueries, models as accModels } from './acc-repository';
-import { queries as voucherQueries, models as voucherModels } from './voucher-repository';
-import { models as fileModels } from './file-repository';
-import { listener as jobEvent } from './job-repository';
-import { listener as longTaskEvent } from './long-task-repository';
-
-let server: Server;
-let debug = Debug('kamand-example');
-
-async function main(){
-  server = new Server();
-  await server.run(
-    process.env.SERVER_HOST || '0.0.0.0',
-    parseInt(process.env.SERVER_PORT || '8050'),
-    false,
-    true,
-    process.env.WEBSOCKET_HOST || '0.0.0.0',
-    parseInt(process.env.WEBSOCKET_PORT || '8040'),
-  );
-  // server.registerQueryBuilder(queries);
-  // server.registerModel(models);
-
-  server.registerModel(authModels);
-
-  server.registerQueryBuilder(accQueries);
-  server.registerModel(accModels);
-
-  server.registerQueryBuilder(voucherQueries);
-  server.registerModel(voucherModels);
-
-  server.registerModel(fileModels);
-
-  server.regsiterEventListener(jobEvent);
-  server.regsiterEventListener(longTaskEvent);
-}
-
-process.on('SIGINT', async function() {
-  debug('stopping');
-  try{
-    await server.stop();
-    process.exit(0);
-  }catch(err){
-    console.error(err);
-    process.exit(1);
-  }
+const testEnv = process.argv.findIndex( a => a === '--test') !== -1;
+testEnv && (process.env.testEnv = 'true');
+readEnv({
+  path: testEnv ? '.env.test' : '.env',
 });
 
-debug(`starting...`);
+import {App} from '../lib/app';
+
+async function main (){
+  const app = new App();
+  await app.init(__dirname, {
+    fastify: {
+      logger: false,
+    }
+  });
+  app.listenNetwork();
+}
+
 main();

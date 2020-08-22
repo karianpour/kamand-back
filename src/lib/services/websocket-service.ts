@@ -1,12 +1,12 @@
-import { Server, ServerOptions, Socket } from 'socket.io';
+import {Server, ServerOptions, Socket} from 'socket.io';
 import SocketIOServer = require('socket.io');
 // import { RaceOrganiser } from './race/race-organiser';
 // import { RaceController } from './race/race-controller';
 import * as http from 'http';
-import { Server as KamandServer } from '../server';
+import {Server as KamandServer} from '../server';
 
 import * as Debug from 'debug';
-import { EventListener } from './interfaces';
+import {EventListener} from './interfaces';
 
 const debug = Debug('kamand:websocket');
 
@@ -16,14 +16,14 @@ export type SockIOMiddleware = (
   fn: (err?: any) => void,
 ) => void;
 
-export type KamandSocket = Socket & {user: any};
+export type KamandSocket = Socket & { user: any };
 export type FutureUpdate = { socket: KamandSocket, payload: any };
 
 export class WebSocketService {
   private io: Server;
   readonly httpServer: http.Server;
   readonly listeners: EventListener[] = [];
-  
+
   private options: ServerOptions;
   private futureUpdates: Map<string, FutureUpdate[]>;
   private futureUpdateKeys: Map<string, string[]>;
@@ -32,11 +32,13 @@ export class WebSocketService {
     private server: KamandServer,
     private host: string,
     private port: number,
+    options?: ServerOptions,
   ) {
     this.options = {
       path: '/kamand-io',
       serveClient: false,
       cookie: false,
+      ...options,
     };
     this.io = SocketIOServer(this.options);
     this.httpServer = http.createServer();
@@ -65,7 +67,7 @@ export class WebSocketService {
     this.listeners.push(listener);
   }
 
-  connection = (socket: KamandSocket)=>{
+  connection = (socket: KamandSocket) => {
     socket.on('disconnect', (reason: string) => this.disconnected(socket, reason));
     socket.on('error', (error: any) => this.error(socket, error));
     socket.on('authorize', (data: string) => this.authorize(socket, data));
@@ -76,7 +78,7 @@ export class WebSocketService {
     });
   }
 
-  authorize = (socket: KamandSocket, data: string)=>{
+  authorize = (socket: KamandSocket, data: string) => {
     try {
       const payload: any = this.server.getHttpServer().verify(data);
       socket.user = payload;
@@ -85,12 +87,12 @@ export class WebSocketService {
     }
   }
 
-  disconnected = (socket: KamandSocket, reason: string)=>{
+  disconnected = (socket: KamandSocket, reason: string) => {
     // debug(`socket ${socket.id} disconnected with reason ${reason}`);
     this.removeForFutureUpdateBySocket(socket);
   }
 
-  error = (socket: KamandSocket, error: any)=>{
+  error = (socket: KamandSocket, error: any) => {
     debug(`socket ${socket.id} encountered error: ${error?.toString()}`);
   }
 
@@ -99,6 +101,9 @@ export class WebSocketService {
   }
 
   async start() {
+  }
+
+  listenNetwork(){
     debug(`websocket starting ${this.host} ${this.port}`);
     this.httpServer.listen(this.port, this.host);
     this.io.attach(this.httpServer, this.options);
@@ -108,69 +113,73 @@ export class WebSocketService {
 
   async stop() {
     this.httpServer.close();
-    const close = new Promise<void>((resolve, reject) => {
-      this.io.close(() => {
-        resolve();
+    try {
+      const close = new Promise<void>((resolve, reject) => {
+        this.io.close(() => {
+          resolve();
+        });
       });
-    });
-    await close;
+      await close;
+    } catch (e) {
+      debug("error in closeing");
+    }
   }
 
-  addForFutureUpdate(key: string, socket: KamandSocket, payload: any): void{
+  addForFutureUpdate(key: string, socket: KamandSocket, payload: any): void {
     const futureUpdates = this.futureUpdates.get(key);
-    if(!futureUpdates){
+    if (!futureUpdates) {
       this.futureUpdates.set(key, [{socket, payload}]);
       this.addFutureUpdateKey(socket.id, key);
-    }else{
-      const index = futureUpdates.findIndex( futureUpdate => futureUpdate.socket === socket);
-      if(index === -1){
+    } else {
+      const index = futureUpdates.findIndex(futureUpdate => futureUpdate.socket === socket);
+      if (index === -1) {
         futureUpdates.push({socket, payload});
         this.addFutureUpdateKey(socket.id, key);
       }
     }
   }
 
-  removeForFutureUpdate(key: string, socket: KamandSocket): void{
+  removeForFutureUpdate(key: string, socket: KamandSocket): void {
     const futureUpdates = this.futureUpdates.get(key);
-    if(futureUpdates){
+    if (futureUpdates) {
       const index = futureUpdates.findIndex(({socket: s}) => s === socket);
-      if(index!==-1){
+      if (index !== -1) {
         futureUpdates.splice(index);
       }
     }
     this.removeFutureUpdateKey(socket.id, key);
   }
 
-  findForFutureUpdate(key: string): FutureUpdate[]{
+  findForFutureUpdate(key: string): FutureUpdate[] {
     return this.futureUpdates.get(key);
   }
 
-  addFutureUpdateKey(socketId: string, key: string){
+  addFutureUpdateKey(socketId: string, key: string) {
     const keys = this.futureUpdateKeys.get(socketId);
-    if(!keys){
+    if (!keys) {
       this.futureUpdateKeys.set(socketId, [key]);
-    }else{
+    } else {
       keys.push(key);
     }
   }
 
-  removeFutureUpdateKey(socketId: string, key: string){
+  removeFutureUpdateKey(socketId: string, key: string) {
     const keys = this.futureUpdateKeys.get(socketId);
-    if(keys){
+    if (keys) {
       const index = keys.findIndex(k => k === key);
-      if(index!==-1){
+      if (index !== -1) {
         keys.splice(index);
       }
     }
   }
 
-  removeForFutureUpdateBySocket(socket: KamandSocket){
+  removeForFutureUpdateBySocket(socket: KamandSocket) {
     const keys = this.futureUpdateKeys.get(socket.id);
-    if(keys){
-      keys.forEach( key => {
+    if (keys) {
+      keys.forEach(key => {
         const futureUpdates = this.futureUpdates.get(key);
-        const index = futureUpdates.findIndex( ({socket: s}) => s === socket);
-        if(index){
+        const index = futureUpdates.findIndex(({socket: s}) => s === socket);
+        if (index) {
           futureUpdates.splice(index);
         }
       });

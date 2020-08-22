@@ -1,8 +1,11 @@
-import { HttpServer } from './services/http-server';
-import { DataService } from './services/data-service';
-import { WebSocketService } from './services/websocket-service';
-import { Model, QueryBuilder, EventListener } from './services/interfaces';
+import {HttpServer} from './services/http-server';
+import {DataService} from './services/data-service';
+import {WebSocketService} from './services/websocket-service';
+import {Model, QueryBuilder, EventListener} from './services/interfaces';
 import * as Debug from 'debug';
+import { FastifyServerOptions, FastifyPluginOptions } from 'fastify';
+import { ServerOptions as SocketIOServerOptions } from 'socket.io';
+
 let debug = Debug('kamand');
 
 export class Server {
@@ -13,45 +16,56 @@ export class Server {
   async run(
     host: string = '0.0.0.0',
     port: number = 8050,
-    logger: boolean = true,
-    origin: boolean = true,
     socketHost: string = '0.0.0.0',
     socketPort: number = 8040,
-  ){
+    fastifyOptions: {
+      fastify?: FastifyServerOptions,
+      jwt?: FastifyPluginOptions,
+      cors?: FastifyPluginOptions,
+      fileUpload?: FastifyPluginOptions,
+      swagger?: FastifyPluginOptions,
+    } = {},
+    socketOptions: SocketIOServerOptions = {},
+  ) {
     debug('starting services');
     this.dataService = new DataService();
     await this.dataService.connect();
 
-    this.httpServer = new HttpServer(this.dataService, host, port, logger, origin);
+    this.httpServer = new HttpServer(this.dataService, host, port, fastifyOptions);
     this.httpServer.start();
 
-    this.webSocketService = new WebSocketService(this, socketHost, socketPort);
+    this.webSocketService = new WebSocketService(this, socketHost, socketPort, socketOptions);
     this.webSocketService.start();
   }
 
-  getDataService(): DataService{
+  listenNetwork(){
+    this.httpServer.listenNetwork();
+    this.webSocketService.listenNetwork();
+  }
+
+  getDataService(): DataService {
     return this.dataService;
   }
 
-  getHttpServer(): HttpServer{
+  getHttpServer(): HttpServer {
     return this.httpServer;
   }
 
-  getWebSocketService(): WebSocketService{
+  getWebSocketService(): WebSocketService {
     return this.webSocketService;
   }
 
-  registerQueryBuilder(queryBuilders: QueryBuilder[]): void{
+  registerQueryBuilder(queryBuilders: QueryBuilder[]): void {
     this.dataService.registerQueryBuilder(queryBuilders);
   }
 
-  registerModel(models: Model[]): void{
+  registerModel(models: Model[]): void {
     this.httpServer.registerModelRoutes(models);
     this.dataService.registerModelActions(models);
-    models.forEach( model => model.setServer(this));
+    models.forEach(model => model.setServer(this));
   }
 
-  regsiterEventListener(listener: EventListener): void{
+  regsiterEventListener(listener: EventListener): void {
     listener.setServer(this);
     this.webSocketService.registerListener(listener);
     this.dataService.registerModelActions([listener]);
@@ -60,7 +74,7 @@ export class Server {
   async stop() {
     debug('stopping services');
     await this.httpServer.stop();
-    await this.dataService.stop();
+    await this.dataService.stop()
     await this.webSocketService.stop();
   }
 

@@ -1,8 +1,8 @@
-import { Model, Server, QueryBuilder } from "../lib/index";
+import { Model, Server, QueryBuilder } from "../../lib/index";
 import { PoolClient } from "pg";
 import { HTTPMethods } from "fastify";
-import { pause } from '../lib/utils/generalUtils';
-import { throwError } from '../lib/services/value-validators';
+import { pause } from '../../lib/utils/generalUtils';
+import { throwError } from '../../lib/services/value-validators';
 import * as Debug from 'debug';
 
 let debug = Debug('kamand');
@@ -25,9 +25,10 @@ class Auth implements Model {
           type: 'object',
           properties: {
             mobileNumber: { type: 'string' },
+            username: { type: 'string' },
             password: { type: 'string' }
           },
-          required: ['mobileNumber', 'password']
+          required: ['password']
         },
         // querystring:{//todo need this part?
         //   type: 'object',
@@ -88,6 +89,7 @@ class Auth implements Model {
     if(result){
       result.token = this.server.getHttpServer().sign({ id: result.id, roles: ['admin'] });
       reply.send(result);
+      return;
     }
     await pause(500);//this pause is to make the life of hacker harder for brute-force attack
     throwError('mobileNumber', 'mismatch', 'mobileNumber mismatch!', 'auth.mobileNumber');

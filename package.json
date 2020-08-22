@@ -1,6 +1,6 @@
 {
   "name": "kamand-back",
-  "version": "3.0.49",
+  "version": "4.0.50",
   "description": "Kamand back end",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -16,12 +16,14 @@
   "private": false,
   "scripts": {
     "build": "rm -rf ./dist && tsc --build ./tsconfig.build.json",
-    "start": "TS_NODE_FILES=true node --inspect=5858 -r ts-node/register ./src/example/index.ts",
+    "start": "TS_NODE_FILES=true node --inspect=5858 -r ts-node/register src/example/index.ts",
     "start:watch": "nodemon",
     "build-tsc": "tsc",
-    "start-ts": "ts-node ./src/example/index.ts",
+    "start-ts": "ts-node src/example/index.ts",
     "build-dev": "rm -rf ./dev && tsc",
-    "start-old": "rm -rf ./dev && tsc --watch & nodemon dev/example/index.js"
+    "start-old": "rm -rf ./dev && tsc --watch & nodemon dev/example/index.js",
+    "test": "TS_NODE_FILES=true tap  --bail --no-ts --node-arg=--require=ts-node/register --before=src/example/setup.js --after=src/example/teardown.js",
+    "coverage": "TS_NODE_FILES=true tap  --bail --no-ts --node-arg=--require=ts-node/register --before=src/example/setup.js --after=src/example/teardown.js --coverage-report=lcov"
   },
   "nodemonConfig": {
     "ignore": [
@@ -49,7 +51,10 @@
     "@types/pg-format": "^1.0.0",
     "@types/socket.io": "^2.1.8",
     "@types/uuid": "^8.0.0",
+    "axios": "^0.19.2",
     "nodemon": "^2.0.4",
+    "supertest": "^4.0.2",
+    "tap": "^14.10.8",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.7"
   },
