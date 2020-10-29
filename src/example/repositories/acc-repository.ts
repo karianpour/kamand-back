@@ -164,7 +164,7 @@ class Acc implements Model {
       handler: this.handleUpdate
     },{
       method: 'POST' as HTTPMethods,
-      public: true,
+      public: false,
       url: '/file/:id',
       schema: {
       },
@@ -176,7 +176,7 @@ class Acc implements Model {
     return [
       {
         address: () => '/findById',
-        public: true,
+        public: false,
         act: this.actFindById,
       },{
         address: () => '/create',
