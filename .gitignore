@@ -7,3 +7,4 @@
 /.idea
 .nyc_output
 /coverage
+.env.example

@@ -128,3 +128,28 @@ $$ language plpgsql;
 
 create trigger long_task_update after insert or update or delete on long_task for each row execute procedure long_task_update_notify();
 
+
+drop schema if exists log cascade;
+create schema log;
+
+CREATE TABLE log.api_log
+(
+    id uuid NOT NULL,
+    api_body json NOT NULL,
+    create_at timestamp with time zone NOT NULL,
+    src text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT api_log_pk PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE log.api_log
+    OWNER to postgres;
+-- Index: api_log_id_uindex
+
+-- DROP INDEX public.api_log_id_uindex;
+
+CREATE UNIQUE INDEX api_log_id_uindex
+    ON log.api_log USING btree
+    (id ASC NULLS LAST)
+    TABLESPACE pg_default;

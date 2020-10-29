@@ -244,3 +244,20 @@ export async function* iterateOnQuery(client: PoolClient, query: QueryConfig, ch
     }
   }
 }
+
+
+export const syncLogApiBody = async(request, server, src)=> {
+  let client: PoolClient;
+  client = await server.getDataService().giveDbClient();
+  const result = await client.query({
+    text: `
+        insert into log.api_log (
+          id, api_body, create_at, src
+        ) values ($1, $2, now(), $3)
+        returning id, api_body, create_at;
+      `,
+    values: [ uuidv4(), request.params, src ],
+  });
+  return result.rows.length > 0 ? result.rows[0] : null;
+
+}
