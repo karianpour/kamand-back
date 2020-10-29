@@ -102,7 +102,7 @@ class Acc implements Model {
   routes() {
     return [{
       method: 'GET' as HTTPMethods,
-      public: true,
+      public: false,
       url: '/:id',
       schema: {
         description: 'get acc',
