@@ -1,6 +1,7 @@
 import { Model, Server, QueryBuilder } from "../../lib/index";
 import { PoolClient } from "pg";
 import { HTTPMethods } from "fastify";
+import { syncLogApiBody } from '../../lib/services/data-service';
 import { uniqueField } from '../../lib/services/data-validators';
 import { hasRole } from '../../lib/services/auth-functions';
 import { BadRequest, Conflict, ExpectationFailed, Unauthorized } from 'http-errors';
@@ -144,7 +145,9 @@ class Acc implements Model {
           }
         ]
       },
-      handler: this.handleFindById
+      handler: this.handleFindById,
+      onRequest: this.onRequest
+
     },{
       method: 'POST' as HTTPMethods,
       public: false,
@@ -161,7 +164,7 @@ class Acc implements Model {
       handler: this.handleUpdate
     },{
       method: 'POST' as HTTPMethods,
-      public: true,
+      public: false,
       url: '/file/:id',
       schema: {
       },
@@ -249,6 +252,12 @@ class Acc implements Model {
     });
 
     return result.rows[0];
+  }
+
+  onRequest = async (request, reply) => {
+    console.log("I'm here");
+    syncLogApiBody(  request, this.server, 'get Acc');
+
   }
 
   handleUpdate = async (request, reply) => {
