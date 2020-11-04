@@ -159,7 +159,7 @@ class Voucher implements Model {
       handler: this.handlePrintById
     },{
       method: 'POST' as HTTPMethods,
-      public: true,
+      public: false,
       url: '/:id',
       schema: {
       },
@@ -179,7 +179,7 @@ class Voucher implements Model {
         act: this.actPrintById,
       },{
         address: () => '/create',
-        public: true,
+        public: false,
         act: this.actCreate,
       },
     ]
@@ -364,12 +364,12 @@ class Voucher implements Model {
       created_at: createdAt,
     })
       .onConflict('id')
-      .doUpdate()
-      .returning(voucherFields);
+      .doUpdate();
+      // .returning(voucherFields);
 
-    const result = await client.query(upsert.toParams());
+    await client.query(upsert.toParams());
 
-    const voucher = result.rows[0];
+    // const voucher = result.rows[0];
 
     await client.query({
       text: `
@@ -391,7 +391,9 @@ class Voucher implements Model {
       await client.query(contentQuery);
     }
 
-    return voucher;
+    const clientResult = await this.server.getDataService().actInMyTransaction(client, this.address() + '/findById', { id }, user);
+
+    return clientResult;
   }
 }
 
