@@ -41,8 +41,8 @@ const accQuery:QueryBuilder = {
     if(queryParams.name){
       select = select.where(sql.ilike('a.name', `%${queryParams.name}%`));
     }
-    select = select.limit('500');
-    select = select.orderBy('a.code');
+    // select = select.limit('500');
+    // select = select.orderBy('a.code');
 
     const query = select.toParams();
     return query;

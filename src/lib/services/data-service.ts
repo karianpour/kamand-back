@@ -130,6 +130,97 @@ export class DataService {
     }
   }
 
+  async paginateSizeQuery(query: string, queryParams: any, user?:any){
+    let client: PoolClient;
+    try {
+
+      // debug(JSON.stringify(this.queryBuilders, null, 2))
+
+      const queryBuilder = this.queryBuilders.get(query);
+
+      if(!queryBuilder){
+        throw new Error(`query ${query} not found!`);
+      }
+
+      if(!queryBuilder.public){
+        if(!user){
+          throw new Unauthorized(`no user defined`);
+        }
+        if(!queryBuilder.authorize){
+          throw new Unauthorized(`no authorize function defined!`);
+        }
+        if(!queryBuilder.authorize(user)){
+          throw new Unauthorized(`user has no access`);
+        }
+      }
+
+      client = await this.dataPool.connect();
+
+      // console.time('app_name')
+      await client.query(`set application_name = 'query_${query}';`);
+      // it has 4 ms over head
+      // console.timeEnd('app_name')
+
+      const queryText = queryBuilder.createQueryConfig(queryParams, user);
+      const result = await client.query(`select count(*) from (${queryText.text}) c`);
+      client.release();
+
+      return result.rows;
+    } catch (error) {
+      if(client){
+        try {
+          client.release(error);
+        } catch (error) {}
+      }
+      throw error;
+    }
+  }
+  async paginateQuery(query: string, queryParams: any, user?:any, offset?:number, limit?:number){
+    let client: PoolClient;
+    try {
+
+      // debug(JSON.stringify(this.queryBuilders, null, 2))
+
+      const queryBuilder = this.queryBuilders.get(query);
+
+      if(!queryBuilder){
+        throw new Error(`query ${query} not found!`);
+      }
+
+      if(!queryBuilder.public){
+        if(!user){
+          throw new Unauthorized(`no user defined`);
+        }
+        if(!queryBuilder.authorize){
+          throw new Unauthorized(`no authorize function defined!`);
+        }
+        if(!queryBuilder.authorize(user)){
+          throw new Unauthorized(`user has no access`);
+        }
+      }
+
+      client = await this.dataPool.connect();
+
+      // console.time('app_name')
+      await client.query(`set application_name = 'query_${query}';`);
+      // it has 4 ms over head
+      // console.timeEnd('app_name')
+
+      const queryText = queryBuilder.createQueryConfig(queryParams, user);
+      const result = await client.query(`${queryText.text} offset ${offset} limit ${limit}`);
+      client.release();
+
+      return result.rows;
+    } catch (error) {
+      if(client){
+        try {
+          client.release(error);
+        } catch (error) {}
+      }
+      throw error;
+    }
+  }
+
   async giveDbClient() {
     return await this.dataPool.connect();
   }

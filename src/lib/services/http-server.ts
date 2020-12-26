@@ -15,6 +15,13 @@ import { SignOptions, VerifyOptions } from 'jsonwebtoken';
 
 let debug = Debug('kamand');
 
+type TPaginationMeta = {
+  total_count?:number,
+  offset:number,
+  limit:number,
+
+}
+
 export class HttpServer {
 
   private fastifyServer: FastifyInstance;
@@ -127,6 +134,42 @@ export class HttpServer {
           const result = await this.dataService.query(query, queryParams, req.user);
           reply.type('application/json').code(200);
           return result;
+        } catch (error) {
+          if(error.statusCode){
+            reply.send(error);
+          }else{
+            console.error(`error while processing private/data with query : ${query}\n params: ${JSON.stringify(queryParams, null, 2)}\n${error}`);
+            reply.send(new InternalServerError());
+          }
+        }
+      }
+    );
+
+    this.fastifyServer.get<{Params: {queryData: string, offset:number, limit:number}}>(
+      '/private/paginated/:queryData/:offset/:limit',
+      {
+        preValidation: [this.fastifyServer.authenticate]
+      },
+      async (req, reply)=>{
+        const query = req.params.queryData;
+        const offset = req.params.offset;
+        const limit = req.params.limit;
+        const queryParams = req.query;
+        try {
+          const meta:TPaginationMeta = {
+            offset:offset,
+            limit:limit,
+          };
+          if(offset){
+            const resultCount = await this.dataService.paginateSizeQuery(query, queryParams, req.user);
+              meta.total_count = resultCount[0].count;
+          }
+          const result = await this.dataService.paginateQuery(query, queryParams, req.user, offset, limit);
+          reply.type('application/json').code(200);
+          return {
+            result : result,
+            meta,
+          };
         } catch (error) {
           if(error.statusCode){
             reply.send(error);
