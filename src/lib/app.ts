@@ -68,6 +68,9 @@ export class App{
       if(repo.queries){
         this.server.registerQueryBuilder(repo.queries);
       }
+      if(repo.paginatedQueries){
+        this.server.registerPaginatedQueryBuilder(repo.paginatedQueries);
+      }
       if(repo.listener){
         this.server.regsiterEventListener(repo.listener);
       }

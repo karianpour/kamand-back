@@ -1,7 +1,7 @@
 import {HttpServer} from './services/http-server';
 import {DataService} from './services/data-service';
 import {WebSocketService} from './services/websocket-service';
-import {Model, QueryBuilder, EventListener} from './services/interfaces';
+import {Model, QueryBuilder, EventListener, PaginatedQueryBuilder} from './services/interfaces';
 import * as Debug from 'debug';
 import { FastifyServerOptions, FastifyPluginOptions } from 'fastify';
 import { ServerOptions as SocketIOServerOptions } from 'socket.io';
@@ -57,6 +57,10 @@ export class Server {
 
   registerQueryBuilder(queryBuilders: QueryBuilder[]): void {
     this.dataService.registerQueryBuilder(queryBuilders);
+  }
+
+  registerPaginatedQueryBuilder(queryBuilders: PaginatedQueryBuilder[]): void {
+    this.dataService.registerPaginatedQueryBuilder(queryBuilders);
   }
 
   registerModel(models: Model[]): void {

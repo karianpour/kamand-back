@@ -1,7 +1,7 @@
 import {Pool, PoolConfig, PoolClient, Client, ClientConfig, types, Notification, QueryConfig} from 'pg';
 import * as Debug from 'debug';
 import { Unauthorized, NotFound } from 'http-errors';
-import { QueryBuilder, ModelAction, Model, Actionable, NotificationListener } from './interfaces';
+import { QueryBuilder, ModelAction, Model, Actionable, NotificationListener, PaginatedQueryBuilder } from './interfaces';
 import { v4 as uuidv4 } from 'uuid';
 
 
@@ -26,6 +26,7 @@ export class DataService {
   private notificationClient: Client;
   private dataPool: Pool;
   private queryBuilders: Map<string, QueryBuilder>;
+  private paginatedQueryBuilders: Map<string, PaginatedQueryBuilder>;
   private actions: Map<string, ModelAction>;
   private notificationListeners: Map<string, NotificationListener[]>;
 
@@ -45,6 +46,7 @@ export class DataService {
     };
   
     this.queryBuilders = new Map();
+    this.paginatedQueryBuilders = new Map();
     this.actions = new Map();
     this.notificationListeners = new Map();
   }
@@ -85,6 +87,12 @@ export class DataService {
     });
   }
 
+  registerPaginatedQueryBuilder(paginatedQqueryBuilders: PaginatedQueryBuilder[]): void{
+    paginatedQqueryBuilders.forEach( paginatedQueryBuilder =>{
+      this.paginatedQueryBuilders.set(paginatedQueryBuilder.query, paginatedQueryBuilder);
+    });
+  }
+
   async query(query: string, queryParams: any, user?:any){
     let client: PoolClient;
     try {
@@ -117,6 +125,100 @@ export class DataService {
       // console.timeEnd('app_name')
 
       const result = await client.query(queryBuilder.createQueryConfig(queryParams, user));
+      client.release();
+
+      return result.rows;
+    } catch (error) {
+      if(client){
+        try {
+          client.release(error);
+        } catch (error) {}
+      }
+      throw error;
+    }
+  }
+
+  async paginatedSizeQuery(query: string, queryParams: any, user?:any){
+    let client: PoolClient;
+    try {
+
+      // debug(JSON.stringify(this.paginatedQueryBuilders, null, 2))
+
+      const paginatedQueryBuilder = this.paginatedQueryBuilders.get(query);
+
+      if(!paginatedQueryBuilder){
+        throw new Error(`query ${query} not found!`);
+      }
+
+      if(paginatedQueryBuilder.type === 'private'){
+        if(!user){
+          throw new Unauthorized(`no user defined`);
+        }
+        if(!paginatedQueryBuilder.authorize){
+          throw new Unauthorized(`no authorize function defined!`);
+        }
+        if(!paginatedQueryBuilder.authorize(user)){
+          throw new Unauthorized(`user has no access`);
+        }
+      }
+
+      client = await this.dataPool.connect();
+
+      // console.time('app_name')
+      await client.query(`set application_name = 'query_${query}';`);
+      // it has 4 ms over head
+      // console.timeEnd('app_name')
+
+      const queryText = paginatedQueryBuilder.createQueryConfig(queryParams, 0, Number.POSITIVE_INFINITY, user);
+      const result = await client.query({
+        text: `select count(*) from (${queryText.text}) c`,
+        values: queryText.values,
+      });
+      client.release();
+
+      return result.rows;
+    } catch (error) {
+      if(client){
+        try {
+          client.release(error);
+        } catch (error) {}
+      }
+      throw error;
+    }
+  }
+
+  async paginatedQuery(query: string, queryParams: any, offset:number, limit:number, user?:any){
+    let client: PoolClient;
+    try {
+
+      // debug(JSON.stringify(this.paginatedQueryBuilders, null, 2))
+
+      const paginatedQueryBuilder = this.paginatedQueryBuilders.get(query);
+
+      if(!paginatedQueryBuilder){
+        throw new Error(`query ${query} not found!`);
+      }
+
+      if(paginatedQueryBuilder.type === 'private'){
+        if(!user){
+          throw new Unauthorized(`no user defined`);
+        }
+        if(!paginatedQueryBuilder.authorize){
+          throw new Unauthorized(`no authorize function defined!`);
+        }
+        if(!paginatedQueryBuilder.authorize(user)){
+          throw new Unauthorized(`user has no access`);
+        }
+      }
+
+      client = await this.dataPool.connect();
+
+      // console.time('app_name')
+      await client.query(`set application_name = 'query_${query}';`);
+      // it has 4 ms over head
+      // console.timeEnd('app_name')
+
+      const result = await client.query(paginatedQueryBuilder.createQueryConfig(queryParams, offset, limit, user));
       client.release();
 
       return result.rows;
