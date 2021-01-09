@@ -4,7 +4,7 @@ import 'fastify-jwt';
 import 'fastify-file-upload';
 
 import * as fastifyCors from 'fastify-cors';
-import * as fastifyJwt from 'fastify-jwt';
+import fastifyJwt from 'fastify-jwt';
 import fastifySwagger from 'fastify-swagger';
 import * as fastifyFileUpload from 'fastify-file-upload';
 import { DataService } from './data-service';
@@ -15,11 +15,10 @@ import { SignOptions, VerifyOptions } from 'jsonwebtoken';
 
 let debug = Debug('kamand');
 
-type TPaginationMeta = {
-  total_count?:number,
+interface IPaginationMeta {
+  totalCount?:number,
   offset:number,
   limit:number,
-
 }
 
 export class HttpServer {
@@ -152,22 +151,24 @@ export class HttpServer {
       },
       async (req, reply)=>{
         const query = req.params.queryData;
-        const offset = req.params.offset;
-        const limit = req.params.limit;
+        let offset = req.params.offset;
+        let limit = req.params.limit;
         const queryParams = req.query;
         try {
-          const meta:TPaginationMeta = {
-            offset:offset,
-            limit:limit,
+          if(offset < 0) offset = 0;
+          if(limit > 50) limit = 50;
+          const meta: IPaginationMeta = {
+            offset,
+            limit,
           };
           if(offset){
-            const resultCount = await this.dataService.paginateSizeQuery(query, queryParams, req.user);
-              meta.total_count = resultCount[0].count;
+            const resultCount = await this.dataService.paginatedSizeQuery(query, queryParams, req.user);
+            meta.totalCount = resultCount[0].count;
           }
-          const result = await this.dataService.paginateQuery(query, queryParams, req.user, offset, limit);
+          const result = await this.dataService.paginatedQuery(query, queryParams, offset, limit, req.user);
           reply.type('application/json').code(200);
           return {
-            result : result,
+            data : result,
             meta,
           };
         } catch (error) {

@@ -1,4 +1,4 @@
-import { Model, Server, QueryBuilder } from "../../lib/index";
+import { Model, Server, QueryBuilder, PaginatedQueryBuilder } from "../../lib/index";
 import { PoolClient } from "pg";
 import { HTTPMethods } from "fastify";
 import { syncLogApiBody } from '../../lib/services/data-service';
@@ -41,8 +41,39 @@ const accQuery:QueryBuilder = {
     if(queryParams.name){
       select = select.where(sql.ilike('a.name', `%${queryParams.name}%`));
     }
-    // select = select.limit('500');
-    // select = select.orderBy('a.code');
+    select = select.limit('500');
+    select = select.orderBy('a.code');
+
+    const query = select.toParams();
+    return query;
+  }
+}
+
+const accPaginatedQuery:PaginatedQueryBuilder = {
+  query: 'acc_list',
+  type: 'private',
+  authorize: (user: any)=>{
+    return !!user;
+  },
+  createQueryConfig: (queryParams, offset, limit, user) => {
+    if(!(hasRole(user, ['admin']))){
+      throw new Unauthorized(`only admin can execute this action!`);
+    }
+
+    let select = sql.select(...(fields.map(f => 'a.'+f)));
+    select = select.from('acc a');
+
+    if(queryParams.code){
+      select = select.where(sql.ilike('a.code', `%${queryParams.code}%`));
+    }
+    if(queryParams.name){
+      select = select.where(sql.ilike('a.name', `%${queryParams.name}%`));
+    }
+    if(limit !== Number.POSITIVE_INFINITY){
+      select = select.limit(limit);
+    }
+    select = select.offset(offset);
+    select = select.orderBy('a.code');
 
     const query = select.toParams();
     return query;
@@ -320,3 +351,5 @@ export const models: Model[] = [
 ];
 
 export const queries = [ accQuery, accStatQuery ]
+
+export const paginatedQueries = [ accPaginatedQuery ]

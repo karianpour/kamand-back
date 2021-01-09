@@ -4,7 +4,11 @@ import { PoolClient, QueryConfig } from 'pg';
 import { Server as KamandServer } from '../server';
 import { KamandSocket } from './websocket-service';
 
-type QueryFunction = (queryParams: any, user?: any) => QueryConfig;
+type PublicQueryFunction = (queryParams: any) => QueryConfig;
+type QueryFunction = (queryParams: any, user: any) => QueryConfig;
+
+type PublicPaginatedQueryFunction = (queryParams: any, offset: number, limit: number) => QueryConfig;
+type PaginatedQueryFunction = (queryParams: any, offset: number, limit: number, user: any) => QueryConfig;
 
 export interface QueryBuilder {
   query: string,
@@ -12,6 +16,17 @@ export interface QueryBuilder {
   authorize?: (user:any) => boolean,
   createQueryConfig: QueryFunction,
 }
+
+export type PaginatedQueryBuilder = {
+  query: string,
+  type: "private",
+  authorize: (user:any) => boolean,
+  createQueryConfig: PaginatedQueryFunction,
+} | {
+  query: string,
+  type: "public",
+  createQueryConfig: PublicPaginatedQueryFunction,
+};
 
 type RouteFunction = () => (fastify.RouteOptions & {public: boolean})[];
 

@@ -1,7 +1,7 @@
 import {Pool, PoolConfig, PoolClient, Client, ClientConfig, types, Notification, QueryConfig} from 'pg';
 import * as Debug from 'debug';
 import { Unauthorized, NotFound } from 'http-errors';
-import { QueryBuilder, ModelAction, Model, Actionable, NotificationListener } from './interfaces';
+import { QueryBuilder, ModelAction, Model, Actionable, NotificationListener, PaginatedQueryBuilder } from './interfaces';
 import { v4 as uuidv4 } from 'uuid';
 
 
@@ -26,6 +26,7 @@ export class DataService {
   private notificationClient: Client;
   private dataPool: Pool;
   private queryBuilders: Map<string, QueryBuilder>;
+  private paginatedQueryBuilders: Map<string, PaginatedQueryBuilder>;
   private actions: Map<string, ModelAction>;
   private notificationListeners: Map<string, NotificationListener[]>;
 
@@ -45,6 +46,7 @@ export class DataService {
     };
   
     this.queryBuilders = new Map();
+    this.paginatedQueryBuilders = new Map();
     this.actions = new Map();
     this.notificationListeners = new Map();
   }
@@ -82,6 +84,12 @@ export class DataService {
   registerQueryBuilder(queryBuilders: QueryBuilder[]): void{
     queryBuilders.forEach( queryBuilder =>{
       this.queryBuilders.set(queryBuilder.query, queryBuilder);
+    });
+  }
+
+  registerPaginatedQueryBuilder(paginatedQqueryBuilders: PaginatedQueryBuilder[]): void{
+    paginatedQqueryBuilders.forEach( paginatedQueryBuilder =>{
+      this.paginatedQueryBuilders.set(paginatedQueryBuilder.query, paginatedQueryBuilder);
     });
   }
 
@@ -130,26 +138,26 @@ export class DataService {
     }
   }
 
-  async paginateSizeQuery(query: string, queryParams: any, user?:any){
+  async paginatedSizeQuery(query: string, queryParams: any, user?:any){
     let client: PoolClient;
     try {
 
-      // debug(JSON.stringify(this.queryBuilders, null, 2))
+      // debug(JSON.stringify(this.paginatedQueryBuilders, null, 2))
 
-      const queryBuilder = this.queryBuilders.get(query);
+      const paginatedQueryBuilder = this.paginatedQueryBuilders.get(query);
 
-      if(!queryBuilder){
+      if(!paginatedQueryBuilder){
         throw new Error(`query ${query} not found!`);
       }
 
-      if(!queryBuilder.public){
+      if(paginatedQueryBuilder.type === 'private'){
         if(!user){
           throw new Unauthorized(`no user defined`);
         }
-        if(!queryBuilder.authorize){
+        if(!paginatedQueryBuilder.authorize){
           throw new Unauthorized(`no authorize function defined!`);
         }
-        if(!queryBuilder.authorize(user)){
+        if(!paginatedQueryBuilder.authorize(user)){
           throw new Unauthorized(`user has no access`);
         }
       }
@@ -161,8 +169,11 @@ export class DataService {
       // it has 4 ms over head
       // console.timeEnd('app_name')
 
-      const queryText = queryBuilder.createQueryConfig(queryParams, user);
-      const result = await client.query(`select count(*) from (${queryText.text}) c`);
+      const queryText = paginatedQueryBuilder.createQueryConfig(queryParams, 0, Number.POSITIVE_INFINITY, user);
+      const result = await client.query({
+        text: `select count(*) from (${queryText.text}) c`,
+        values: queryText.values,
+      });
       client.release();
 
       return result.rows;
@@ -175,26 +186,27 @@ export class DataService {
       throw error;
     }
   }
-  async paginateQuery(query: string, queryParams: any, user?:any, offset?:number, limit?:number){
+
+  async paginatedQuery(query: string, queryParams: any, offset:number, limit:number, user?:any){
     let client: PoolClient;
     try {
 
-      // debug(JSON.stringify(this.queryBuilders, null, 2))
+      // debug(JSON.stringify(this.paginatedQueryBuilders, null, 2))
 
-      const queryBuilder = this.queryBuilders.get(query);
+      const paginatedQueryBuilder = this.paginatedQueryBuilders.get(query);
 
-      if(!queryBuilder){
+      if(!paginatedQueryBuilder){
         throw new Error(`query ${query} not found!`);
       }
 
-      if(!queryBuilder.public){
+      if(paginatedQueryBuilder.type === 'private'){
         if(!user){
           throw new Unauthorized(`no user defined`);
         }
-        if(!queryBuilder.authorize){
+        if(!paginatedQueryBuilder.authorize){
           throw new Unauthorized(`no authorize function defined!`);
         }
-        if(!queryBuilder.authorize(user)){
+        if(!paginatedQueryBuilder.authorize(user)){
           throw new Unauthorized(`user has no access`);
         }
       }
@@ -206,8 +218,7 @@ export class DataService {
       // it has 4 ms over head
       // console.timeEnd('app_name')
 
-      const queryText = queryBuilder.createQueryConfig(queryParams, user);
-      const result = await client.query(`${queryText.text} offset ${offset} limit ${limit}`);
+      const result = await client.query(paginatedQueryBuilder.createQueryConfig(queryParams, offset, limit, user));
       client.release();
 
       return result.rows;
