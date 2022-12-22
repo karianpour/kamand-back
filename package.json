@@ -65,7 +65,7 @@
     "fastify": "^3.9.2",
     "fastify-cors": "^5.1.0",
     "fastify-file-upload": "^3.0.0",
-    "fastify-jwt": "^2.2.0",
+    "fastify-jwt": "^4.2.0",
     "fastify-plugin": "^3.0.0",
     "fastify-swagger": "^3.5.0",
     "pg": "^8.5.1",
